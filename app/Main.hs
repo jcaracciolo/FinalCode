@@ -65,7 +65,7 @@ eval ((While bexpr stmt), context) = do
 eval (Print s, context) = print s >> (return $ context)
 eval (a, context) = print a >> (return $ context)
 
-main = do{--}
+main = do
     [filename] <- getArgs
     code <- readFile filename
 

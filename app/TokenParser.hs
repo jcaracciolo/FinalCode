@@ -100,36 +100,27 @@ whileStmt =
 
 -- Assign Statement
 
-assignStmtA :: Parser Stmt
-assignStmtA =
-  do
-     reserved "let"
-     var  <- identifier
-     reservedOp "="
-     expr <- aExpression
-     return $ AssignA var expr
+assignStmtGeneric :: Parser a -> (String -> a -> Stmt) -> Parser Stmt
+assignStmtGeneric parser mapper =
+                                  do
+                                     reserved "let"
+                                     var  <- identifier
+                                     reservedOp "="
+                                     expr <- parser
+                                     return $ mapper var expr
 
-assignStmtB :: Parser Stmt
-assignStmtB =
-  do
-     reserved "let"
-     var  <- identifier
-     reservedOp "="
-     expr <- bExpression
-     return $ AssignB var expr
+assignStmtA = assignStmtGeneric aExpression AssignA
+assignStmtB = assignStmtGeneric bExpression AssignB
 
-changeStmtA :: Parser Stmt
-changeStmtA =
+-- change statement
+changeStmtGeneric :: Parser a -> (String -> a -> Stmt) -> Parser Stmt
+changeStmtGeneric parser mapper =
   do var  <- identifier
      reservedOp "="
-     expr <- aExpression
-     return $ ChangeValA var expr
+     expr <- parser
+     return $ mapper var expr
 
-changeStmtB :: Parser Stmt
-changeStmtB =
-  do var  <- identifier
-     reservedOp "="
-     expr <- bExpression
-     return $ ChangeValB var expr
+changeStmtA = changeStmtGeneric aExpression ChangeValA
+changeStmtB = changeStmtGeneric bExpression ChangeValB
 
 
