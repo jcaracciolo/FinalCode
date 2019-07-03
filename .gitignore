@@ -3,3 +3,4 @@ FinalCode.cabal
 *~
 dist
 *.iml
+.idea/*
