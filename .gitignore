@@ -1,0 +1,5 @@
+.stack-work/
+FinalCode.cabal
+*~
+dist
+*.iml
