@@ -7,11 +7,12 @@ evalVar,
 addVar,
 addLet,
 modifyVar,
+hasReturned,
 ) where
 
 import DataTypes
 import Control.Arrow
-
+import Control.Exception
 
 isDefined:: ScopeVariables -> String -> Bool
 isDefined [] name = False
@@ -49,13 +50,13 @@ addVar::[ScopeVariables] -> String -> VariableType -> [ScopeVariables]
 addVar [] name value        = [[(name, value)]]
 addVar [gs] name value      = failIfDefined gs name [(name, value):gs]
 addVar [fs, gs] name value  = failIfDefined fs name [((name, value):fs), gs]
-addVar (s:ss) name value    = failIfDefined s name  (addVar ss name value)
+addVar (s:ss) name value    = failIfDefined s name  (s:(addVar ss name value))
 
 -- Given a list of ScopeVariables, a new variable of global scope is added to the corresponding scope variables, or throws error if already defined.
 addGlobal::[ScopeVariables] -> String -> VariableType -> [ScopeVariables]
 addGlobal [] name value     = [[(name, value)]]
 addGlobal [gs] name value   = failIfDefined gs name [(name, value):gs]
-addGlobal (s:ss) name value = failIfDefined s  name (addGlobal ss name value)
+addGlobal (s:ss) name value = failIfDefined s  name (s:(addGlobal ss name value))
 
 -- Evaluates a variable name in the ScopesVariable, if is not found, Nothing is returned
 evalInScope:: ScopeVariables -> String -> Maybe VariableType
@@ -70,7 +71,6 @@ evalVar:: [ScopeVariables] -> String -> VariableType
 evalVar [] name = error ("Variable " ++ name ++ " is not defined in the scope")
 evalVar (s:ss) name = case evalInScope s name of Nothing -> evalVar ss name
                                                  Just value -> value
-
 expectInt:: VariableType -> Integer
 expectInt (IntT i) = i
 expectInt t = error ("Expected Integer in but got " ++ (show t))
@@ -86,3 +86,10 @@ expectStr t = error ("Expected String in but got " ++ (show t))
 expectFn:: VariableType ->  FDExpr
 expectFn (FunctionT f) = f
 expectFn t = error ("Expected String in but got " ++ (show t))
+
+hasReturned::[ScopeVariables] -> Bool
+hasReturned [] = False
+hasReturned (s:ss) = case evalInScope s "return" of Nothing -> hasReturned ss
+                                                    Just Undefined -> False
+                                                    Just _ -> True
+

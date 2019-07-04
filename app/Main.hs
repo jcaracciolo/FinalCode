@@ -13,6 +13,7 @@ import LanguageDef
 import TokenParser
 import ScopeEvaluator
 
+-- -------------- ARITMETIC EVALUATOR -------------------------------
 evalA :: AExpr -> [ScopeVariables] -> Integer
 evalA (IntConst i) vars                     = i
 evalA (Neg expr) vars                       = - (evalA expr vars)
@@ -22,6 +23,7 @@ evalA (ABinary Multiply expr1 expr2) vars   = (evalA expr1 vars) *       (evalA 
 evalA (ABinary Divide expr1 expr2) vars     = (evalA expr1 vars) `div`   (evalA expr2 vars)
 evalA (VarA s) vars                         = expectInt (evalVar vars s)
 
+-- -------------- BOOLEAN EVALUATOR -------------------------------
 evalB:: BExpr -> [ScopeVariables] -> Bool
 evalB (BConst b) vars                           = b
 evalB (Not bexpr) vars                          = not (evalB bexpr vars)
@@ -34,58 +36,61 @@ evalB (BCompare LessE aexpr1 aexpr2) vars       = (evalA aexpr1 vars) <= (evalA 
 evalB (BCompare Less aexpr1 aexpr2) vars        = (evalA aexpr1 vars) < (evalA aexpr2 vars)
 evalB (VarB s) vars                             = expectBool (evalVar vars s)
 
-evalF::FDExpr -> [GenericExpr] -> [ScopeVariables] -> IO(([ScopeVariables], VariableType))
+
+-- -------------- FUNCTION CALL EVALUATOR -------------------------------
+evalF::FDExpr -> [GenericExpr] -> [ScopeVariables] -> IO ([ScopeVariables], VariableType)
 evalF (FDExpr parameters code) paramExpr []      = error "Global context was not found"
 evalF (FDExpr parameters code) paramExpr context = do
                                                    (scopeAfterParams, appliedParams) <- evalParams parameters paramExpr context
-                                                   newScope <- eval (code, [ appliedParams, (last scopeAfterParams) ])
+                                                   newScope <- eval (code, [appliedParams, (last scopeAfterParams) ])
                                                    newGlobalScope <- return $ (init scopeAfterParams) ++ [(last newScope)]
                                                    return $ (newGlobalScope, (evalVar newScope "return"))
 
-evalParamsInSequence::[(String, GenericExpr)] -> [ScopeVariables] -> IO(([ScopeVariables], ScopeVariables))
+evalParamsInSequence::[(String, GenericExpr)] -> [ScopeVariables] -> IO ([ScopeVariables], ScopeVariables)
 evalParamsInSequence [] context = return (context, [])
 evalParamsInSequence ((s, g):otherParams) context = do
                                                     (newContext, value) <- evalG g context
                                                     (finalContext, appliedParams) <- evalParamsInSequence otherParams newContext
                                                     return $ (finalContext, (s, value):appliedParams)
 
-evalParams::[String] -> [GenericExpr] -> [ScopeVariables] -> IO(([ScopeVariables], ScopeVariables))
+evalParams::[String] -> [GenericExpr] -> [ScopeVariables] -> IO ([ScopeVariables], ScopeVariables)
 evalParams names exprs context = do
                                  (newContext, appliedParams) <- evalParamsInSequence (zip names exprs) context
                                  return $ (newContext, ("return", Undefined):appliedParams)
 
-evalG::GenericExpr -> [ScopeVariables] -> IO(([ScopeVariables], VariableType))
+
+-- -------------- GENERAL EXPRESSION EVALUATOR -------------------------------
+evalG::GenericExpr -> [ScopeVariables] -> IO ([ScopeVariables], VariableType)
 evalG (AlgebraicE aexpr) vars                     = return $ (vars, IntT (evalA aexpr vars))
 evalG (BooleanE bexpr) vars                       = return $ (vars, BoolT (evalB bexpr vars))
 evalG (IdentifierE name) vars                     = return $ (vars, evalVar vars name)
 evalG (FunctionCallE (FCExpr name params)) vars   = evalF (expectFn (evalVar vars name)) params vars
 
 
-evalAssign::([ScopeVariables] -> String -> VariableType -> [ScopeVariables])
-                -> [ScopeVariables] -> String -> VariableType -> IO ([ScopeVariables])
+-- -------------- ASSIGNMENT EVALUATOR -------------------------------
+type ScopeAssigner = [ScopeVariables] -> String -> VariableType -> [ScopeVariables]
+evalAssign::ScopeAssigner -> [ScopeVariables] -> String -> VariableType -> IO [ScopeVariables]
 evalAssign f context name value = return $ f context name value
 
-evalAssignF::([ScopeVariables] -> String -> VariableType -> [ScopeVariables])
-                -> [ScopeVariables] -> String -> FCExpr -> IO ([ScopeVariables])
+evalAssignF::ScopeAssigner -> [ScopeVariables] -> String -> FCExpr -> IO [ScopeVariables]
 evalAssignF f context name (FCExpr fName params) = do
                              (newContext, returnValue) <- (evalF (expectFn (evalVar context fName)) params context)
                              return $ f newContext name returnValue
 
-eval :: Scope -> IO ([ScopeVariables])
-eval (Seq [], context) = return $ context
+-- -------------- MAIN EVALUATOR -------------------------------
+eval :: Scope -> IO [ScopeVariables]
+eval (Seq [], context) = return context
 eval (Seq (s:ss), context) = do
                               newVariables <- eval (s, context)
-                              eval ((Seq ss), newVariables)
-
-
-
+                              if hasReturned newVariables then
+                                return newVariables
+                              else eval ((Seq ss), newVariables)
 
 eval (AssignLet name (ValueE (AlgebraicE    aexpr)), context)   = evalAssign addLet context name (IntT  (evalA aexpr context))
 eval (AssignLet name (ValueE (BooleanE      bexpr)), context)   = evalAssign addLet context name (BoolT (evalB bexpr context))
 eval (AssignLet name (FDeclare fdexpr), context)                = evalAssign addLet context name (FunctionT fdexpr)
 eval (AssignLet name (ValueE (IdentifierE oldName)), context)   = evalAssign addLet context name (evalVar context oldName)
 eval (AssignLet name (ValueE (FunctionCallE fcExpr)), context)  = evalAssignF addLet context name fcExpr
-
 
 eval (AssignVar name (ValueE (AlgebraicE    aexpr)), context)   = evalAssign addVar context name (IntT  (evalA aexpr context))
 eval (AssignVar name (ValueE (BooleanE      bexpr)), context)   = evalAssign addVar context name (BoolT (evalB bexpr context))
@@ -98,7 +103,6 @@ eval (ChangeVal name (ValueE (BooleanE      bexpr)), context)   = evalAssign mod
 eval (ChangeVal name (FDeclare fdexpr), context)                = evalAssign modifyVar context name (FunctionT fdexpr)
 eval (ChangeVal name (ValueE (IdentifierE oldName)), context)   = evalAssign modifyVar context name (evalVar context oldName)
 eval (ChangeVal name (ValueE (FunctionCallE fcExpr)), context)  = evalAssignF modifyVar context name fcExpr
-
 
 eval ((If bexpr s1 s2), context)                        = if (evalB bexpr context)
                                                            then liftM tail (eval (s1, []:context))

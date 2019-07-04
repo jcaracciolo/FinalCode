@@ -1,20 +1,27 @@
-let x = 5
-let esUno = function(x) {
-    if(x==1){
-        print("Es Uno")
-    } else {
-        print("No Es Uno")
-    }
-}
-let esUnoY = function(y) {
-    if(x==1){
-        print("Es Uno")
-    } else {
-        print("No Es Uno")
-    }
-}
-esUno(1)
-esUno(2)
+a = function() {
+    print("This is OK to execute")
 
-esUnoY(1)
-esUnoY(2)
+    z = function(x) {
+        return x
+    }
+
+    if(2==2) {
+        return 1
+        print("THIS SHOULD NOT BE EXECUTED")
+    }
+    print("NEITHER SHOULD THIS")
+}
+
+execute = function() {
+    b= a()
+    uno = z(1)
+    if(b==uno) {
+        print("Variable B y Z(1) is UNO!!!")
+    } else {
+        print("NOPE")
+    }
+
+     return 1
+}
+
+execute()

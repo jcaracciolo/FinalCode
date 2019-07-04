@@ -51,6 +51,7 @@ languageDef =
                                      , "let"
                                      , "var"
                                      , "function"
+                                     , "return"
                                      ]
            , Token.reservedOpNames = [ "+", "-", "*", "/", "="
                                      , "<", ">", ">=", "<=", "==", "and", "or", "not"

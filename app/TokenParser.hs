@@ -30,25 +30,17 @@ program = do
 
 -- Possible statements (If, While, Assign, Print)
 statement :: Parser Stmt
-statement =  ifStmt
+statement =  (ifStmt
            <|> whileStmt
-           <|> callFunctionStmt
-           <|> try assignLetA
-           <|> try assignLetB
-           <|> try assignLetI
-           <|> try assignLetFC
-           <|> assignLetFD
-           <|> try assignVarA
-           <|> try assignVarB
-           <|> try assignVarI
-           <|> try assignVarFC
-           <|> assignVarFD
-           <|> try changeA
-           <|> try changeB
-           <|> try changeI
-           <|> try changeFC
-           <|> changeFD
-           <|> printStmt
+           <|> try callFunctionStmt
+           <|> assignLet
+           <|> assignVar
+           <|> changeVar
+           <|> returnStmt
+           <|> printStmt) >>= (\stmt -> do
+                                          optional semi
+                                          return stmt
+                              )
 
 -- Arithmetic Expresion
 aTerm =  parens aExpression
@@ -144,14 +136,44 @@ whileStmt =
 -- Assign Statement
 
 assignStmtGeneric :: Maybe String -> Parser a -> (String -> a -> Stmt) -> Parser Stmt
-assignStmtGeneric word parser mapper =
-                                  do
-                                     case word of Nothing -> whiteSpace
-                                                  Just w -> reserved w
-                                     var  <- identifier
-                                     reservedOp "="
-                                     expr <- parser
-                                     return $ mapper var expr
+assignStmtGeneric word parser mapper = case word of Nothing -> assignment
+                                                    Just w ->  reserved w >> assignment
+                                            where assignment = do
+                                                                var  <- identifier
+                                                                reservedOp "="
+                                                                expr <- parser
+                                                                return $ mapper var expr
+
+returnStmtGeneric :: Parser a -> (a -> AssignableE) -> Parser Stmt
+returnStmtGeneric parser mapper = do
+                                    reserved "return"
+                                    expr <- parser
+                                    return $ ChangeVal "return" (mapper expr)
+
+assignLet = try assignLetA
+        <|> try assignLetB
+        <|> try assignLetI
+        <|> try assignLetFC
+        <|> try assignLetFD
+
+assignVar = try assignVarA
+        <|> try assignVarB
+        <|> try assignVarI
+        <|> try assignVarFC
+        <|> try assignVarFD
+
+changeVar = try changeFC
+        <|> try changeB
+        <|> try changeI
+        <|> try changeA
+        <|> try changeFD
+
+returnStmt = returnStmtA
+         <|> returnStmtB
+         <|> returnStmtI
+         <|> returnStmtFC
+         <|> returnStmtFD
+
 
 assignLetA  = assignStmtGeneric (Just "let") aExpression     (flip (flip AssignLet . ValueE . AlgebraicE))
 assignLetB  = assignStmtGeneric (Just "let") bExpression     (flip (flip AssignLet . ValueE . BooleanE))
@@ -170,4 +192,12 @@ changeB  = assignStmtGeneric Nothing bExpression     (flip (flip ChangeVal . Val
 changeI  = assignStmtGeneric Nothing identifier      (flip (flip ChangeVal . ValueE . IdentifierE))
 changeFC = assignStmtGeneric Nothing fCallExpression (flip (flip ChangeVal . ValueE . FunctionCallE))
 changeFD = assignStmtGeneric Nothing fDeclExpression (flip (flip ChangeVal . FDeclare))
+
+returnStmtA  = returnStmtGeneric aExpression     (ValueE . AlgebraicE)
+returnStmtB  = returnStmtGeneric bExpression     (ValueE . BooleanE)
+returnStmtI  = returnStmtGeneric identifier      (ValueE . IdentifierE)
+returnStmtFC = returnStmtGeneric fCallExpression (ValueE . FunctionCallE)
+returnStmtFD = returnStmtGeneric fDeclExpression (FDeclare)
+
+
 
