@@ -47,5 +47,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     - -XFlexibleContexts
+    - -XConstraintKinds
     dependencies:
     - FinalCode

@@ -1,20 +1,20 @@
 module DataTypes(
-BBinaryOp (And , Or),
-BCompareOp (Greater, GreaterE, Equal, LessE, Less),
-BExpr(BConst, Not, BBinary, BCompare, VarB),
+BBinaryOp (..),
+BCompareOp (..),
+BExpr(..),
 
-ABinaryOp(Add , Subtract , Multiply , Divide),
-AExpr(Neg, IntConst, ABinary, VarA),
+ABinaryOp(..),
+AExpr(..),
 
-Stmt(Seq, AssignLet, AssignVar, ChangeVal, FCall, If, While, Print, Skip),
-GenericExpr(AlgebraicE, BooleanE, IdentifierE, FunctionCallE),
-AssignableE(ValueE, FDeclare),
-FDExpr(FDExpr),
-FCExpr(FCExpr),
+Stmt(..),
+GenericExpr(..),
+AssignableE(..),
+FDExpr(..),
+FCExpr(..),
 
-VariableType(IntT, StrT, BoolT, FunctionT, Undefined),
+VariableType(..),
 Program,
-Scope,
+ProgramState,
 ScopeVariables) where
 
 
@@ -57,6 +57,10 @@ data Stmt =    Seq [Stmt]
 data VariableType = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | Undefined deriving (Show)
 
 
-type Program = [Scope]
-type Scope = (Stmt, [ScopeVariables])
+type Program = (Stmt, ProgramState)
+type ProgramState = [ScopeVariables]
+type ProgramExecution a = (ProgramState, IO ())
 type ScopeVariables = [(String, VariableType)]
+
+-- newtype IOState s a = IOState { runState :: s -> (a, s) }
+

@@ -14,7 +14,7 @@ import TokenParser
 import ScopeEvaluator
 
 -- -------------- ARITMETIC EVALUATOR -------------------------------
-evalA :: AExpr -> [ScopeVariables] -> Integer
+evalA :: AExpr -> ProgramState -> Integer
 evalA (IntConst i) vars                     = i
 evalA (Neg expr) vars                       = - (evalA expr vars)
 evalA (ABinary Add expr1 expr2) vars        = (evalA expr1 vars) +       (evalA expr2 vars)
@@ -24,7 +24,7 @@ evalA (ABinary Divide expr1 expr2) vars     = (evalA expr1 vars) `div`   (evalA 
 evalA (VarA s) vars                         = expectInt (evalVar vars s)
 
 -- -------------- BOOLEAN EVALUATOR -------------------------------
-evalB:: BExpr -> [ScopeVariables] -> Bool
+evalB:: BExpr -> ProgramState -> Bool
 evalB (BConst b) vars                           = b
 evalB (Not bexpr) vars                          = not (evalB bexpr vars)
 evalB (BBinary And expr1 expr2) vars            = (evalB expr1 vars) && (evalB expr2 vars)
@@ -38,7 +38,7 @@ evalB (VarB s) vars                             = expectBool (evalVar vars s)
 
 
 -- -------------- FUNCTION CALL EVALUATOR -------------------------------
-evalF::FDExpr -> [GenericExpr] -> [ScopeVariables] -> IO ([ScopeVariables], VariableType)
+evalF::FDExpr -> [GenericExpr] -> ProgramState -> IO (ProgramState, VariableType)
 evalF (FDExpr parameters code) paramExpr []      = error "Global context was not found"
 evalF (FDExpr parameters code) paramExpr context = do
                                                    (scopeAfterParams, appliedParams) <- evalParams parameters paramExpr context
@@ -46,21 +46,21 @@ evalF (FDExpr parameters code) paramExpr context = do
                                                    newGlobalScope <- return $ (init scopeAfterParams) ++ [(last newScope)]
                                                    return $ (newGlobalScope, (evalVar newScope "return"))
 
-evalParamsInSequence::[(String, GenericExpr)] -> [ScopeVariables] -> IO ([ScopeVariables], ScopeVariables)
+evalParamsInSequence::[(String, GenericExpr)] -> ProgramState -> IO (ProgramState, ScopeVariables)
 evalParamsInSequence [] context = return (context, [])
 evalParamsInSequence ((s, g):otherParams) context = do
                                                     (newContext, value) <- evalG g context
                                                     (finalContext, appliedParams) <- evalParamsInSequence otherParams newContext
                                                     return $ (finalContext, (s, value):appliedParams)
 
-evalParams::[String] -> [GenericExpr] -> [ScopeVariables] -> IO ([ScopeVariables], ScopeVariables)
+evalParams::[String] -> [GenericExpr] -> ProgramState -> IO (ProgramState, ScopeVariables)
 evalParams names exprs context = do
                                  (newContext, appliedParams) <- evalParamsInSequence (zip names exprs) context
                                  return $ (newContext, ("return", Undefined):appliedParams)
 
 
 -- -------------- GENERAL EXPRESSION EVALUATOR -------------------------------
-evalG::GenericExpr -> [ScopeVariables] -> IO ([ScopeVariables], VariableType)
+evalG::GenericExpr -> ProgramState -> IO (ProgramState, VariableType)
 evalG (AlgebraicE aexpr) vars                     = return $ (vars, IntT (evalA aexpr vars))
 evalG (BooleanE bexpr) vars                       = return $ (vars, BoolT (evalB bexpr vars))
 evalG (IdentifierE name) vars                     = return $ (vars, evalVar vars name)
@@ -68,17 +68,17 @@ evalG (FunctionCallE (FCExpr name params)) vars   = evalF (expectFn (evalVar var
 
 
 -- -------------- ASSIGNMENT EVALUATOR -------------------------------
-type ScopeAssigner = [ScopeVariables] -> String -> VariableType -> [ScopeVariables]
-evalAssign::ScopeAssigner -> [ScopeVariables] -> String -> VariableType -> IO [ScopeVariables]
+type ScopeAssigner = ProgramState -> String -> VariableType -> ProgramState
+evalAssign::ScopeAssigner -> ProgramState -> String -> VariableType -> IO ProgramState
 evalAssign f context name value = return $ f context name value
 
-evalAssignF::ScopeAssigner -> [ScopeVariables] -> String -> FCExpr -> IO [ScopeVariables]
+evalAssignF::ScopeAssigner -> ProgramState -> String -> FCExpr -> IO ProgramState
 evalAssignF f context name (FCExpr fName params) = do
                              (newContext, returnValue) <- (evalF (expectFn (evalVar context fName)) params context)
                              return $ f newContext name returnValue
 
 -- -------------- MAIN EVALUATOR -------------------------------
-eval :: Scope -> IO [ScopeVariables]
+eval :: Program -> IO ProgramState
 eval (Seq [], context) = return context
 eval (Seq (s:ss), context) = do
                               newVariables <- eval (s, context)
