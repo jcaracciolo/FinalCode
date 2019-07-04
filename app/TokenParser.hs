@@ -32,6 +32,7 @@ program = do
 statement :: Parser Stmt
 statement =  ifStmt
            <|> whileStmt
+           <|> callFunctionStmt
            <|> try assignLetA
            <|> try assignLetB
            <|> try assignLetI
@@ -47,7 +48,6 @@ statement =  ifStmt
            <|> try changeI
            <|> try changeFC
            <|> changeFD
-           <|> callFunctionStmt
            <|> printStmt
 
 -- Arithmetic Expresion

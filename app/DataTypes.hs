@@ -12,7 +12,7 @@ AssignableE(ValueE, FDeclare),
 FDExpr(FDExpr),
 FCExpr(FCExpr),
 
-VariableType(IntT, StrT, BoolT, FunctionT),
+VariableType(IntT, StrT, BoolT, FunctionT, Undefined),
 Program,
 Scope,
 ScopeVariables) where
@@ -54,9 +54,9 @@ data Stmt =    Seq [Stmt]
                | Skip
                 deriving (Show)
 
-data VariableType = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr deriving (Show)
+data VariableType = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | Undefined deriving (Show)
 
 
 type Program = [Scope]
 type Scope = (Stmt, [ScopeVariables])
-type ScopeVariables = (String, VariableType)]
+type ScopeVariables = [(String, VariableType)]

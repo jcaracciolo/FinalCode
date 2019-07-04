@@ -1,20 +1,20 @@
-x = 5
-if(true) {
-    let x = 6
-    if(x==6) {
-        let x = 7
-            if(x==7) {
-                print("7")
-            } else {
-                print("NOPE")
-            }
-            print("6")
+let x = 5
+let esUno = function(x) {
+    if(x==1){
+        print("Es Uno")
     } else {
-        print("NOPE")
+        print("No Es Uno")
     }
 }
-if( x == 5 ) {
-    print("5")
-} else {
-    print("NOPE")
+let esUnoY = function(y) {
+    if(x==1){
+        print("Es Uno")
+    } else {
+        print("No Es Uno")
+    }
 }
+esUno(1)
+esUno(2)
+
+esUnoY(1)
+esUnoY(2)
