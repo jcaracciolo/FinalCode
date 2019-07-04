@@ -3,4 +3,4 @@ FinalCode.cabal
 *~
 dist
 *.iml
-.idea/*
+.idea/workspace.xml
