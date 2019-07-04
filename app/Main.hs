@@ -38,35 +38,36 @@ evalB (VarB s) vars                             = expectBool (evalVar vars s)
 eval :: Scope -> IO ([ScopeVariables])
 eval (Seq [], context) = return $ context
 eval (Seq (s:ss), context) = do
-                        newVariables <- eval (s, context)
-                        eval ((Seq ss), newVariables)
-eval (AssignLetA name aexpr, context) = do
-                                  return $ addLet context name (IntT (evalA aexpr context))
+                              newVariables <- eval (s, context)
+                              eval ((Seq ss), newVariables)
 
-eval (AssignVarA name aexpr, context) = do
-                                  return $ addVar context name (IntT (evalA aexpr context))
+eval (AssignLet name (ValueE (AlgebraicE    aexpr)), context)   = return $ addLet context name (IntT  (evalA aexpr context))
+eval (AssignLet name (ValueE (BooleanE      bexpr)), context)   = return $ addLet context name (BoolT (evalB bexpr context))
+eval (AssignLet name (FDeclare fdexpr), context)       = return $ addLet context name (FunctionT fdexpr)
+eval (AssignLet name (ValueE (IdentifierE newName)), context)   = return $ addLet context newName  (evalVar context name)
+-- eval (AssignLet name (ValueE (FunctionCallE fcexpr)), context)  = return $ addLet context name (BoolT (evalB bexpr context))
 
-eval (ChangeValA name aexpr, context) = do
-                                  return $ modifyVar context name (IntT (evalA aexpr context))
+eval (AssignVar name (ValueE (AlgebraicE    aexpr)), context)   = return $ addVar context name (IntT  (evalA aexpr context))
+eval (AssignVar name (ValueE (BooleanE      bexpr)), context)   = return $ addVar context name (BoolT (evalB bexpr context))
+eval (AssignVar name (FDeclare fdexpr), context)       = return $ addVar context name (FunctionT fdexpr)
+eval (AssignVar name (ValueE (IdentifierE newName)), context)   = return $ addVar context newName  (evalVar context name)
+-- eval (AssignVar name (ValueE (FunctionCallE fcexpr)), context)  = return $ addVar context name (BoolT (evalB bexpr context))
 
-eval (AssignLetB name bexpr, context) = do
-                                  return $ addLet context name (BoolT (evalB bexpr context))
+eval (ChangeVal name (ValueE (AlgebraicE    aexpr)), context)   = return $ modifyVar context name (IntT  (evalA aexpr context))
+eval (ChangeVal name (ValueE (BooleanE      bexpr)), context)   = return $ modifyVar context name (BoolT (evalB bexpr context))
+eval (ChangeVal name (FDeclare fdexpr), context)       = return $ modifyVar context name (FunctionT fdexpr)
+eval (ChangeVal name (ValueE (IdentifierE newName)), context)   = return $ modifyVar context newName  (evalVar context name)
+-- eval (ChangeVal name (ValueE (FunctionCallE fcexpr)), context)  = return $ modifyVar context name (BoolT (evalB bexpr context))
 
-eval (AssignVarB name bexpr, context) = do
-                                  return $ addVar context name (BoolT (evalB bexpr context))
+eval ((If bexpr s1 s2), context)                        = if (evalB bexpr context)
+                                                           then liftM tail (eval (s1, []:context))
+                                                           else liftM tail (eval (s2, []:context))
+eval ((While bexpr stmt), context)                      = if (evalB bexpr context) then
+                                                              liftM tail (eval (stmt, []:context)) >>= ((,) (While bexpr stmt) >>> eval)
+                                                             else eval (Skip, context)
 
-eval (ChangeValB name bexpr, context) = do
-                                  return $ modifyVar context name (BoolT (evalB bexpr context))
-
-eval ((If bexpr s1 s2), context) = if (evalB bexpr context)
-                                    then liftM tail (eval (s1, []:context))
-                                    else liftM tail (eval (s2, []:context))
-
-
-eval ((While bexpr stmt), context) = do
-                                        if (evalB bexpr context) then
-                                         liftM tail (eval (stmt, []:context)) >>= ((,) (While bexpr stmt) >>> eval)
-                                        else eval (Skip, context)
+eval(FCall (FCExpr name params), context) = let (FDExpr parameters code) = expectFn (evalVar context name) in
+                                                   eval (code, context)
 
 eval (Print s, context) = print s >> (return $ context)
 eval (a, context) = print a >> (return $ context)

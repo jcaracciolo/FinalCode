@@ -3,6 +3,7 @@ program
 ) where
 
 import Control.Monad
+import Control.Arrow
 
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
@@ -32,11 +33,21 @@ statement :: Parser Stmt
 statement =  ifStmt
            <|> whileStmt
            <|> try assignLetA
-           <|> assignLetB
+           <|> try assignLetB
+           <|> try assignLetI
+           <|> try assignLetFC
+           <|> assignLetFD
            <|> try assignVarA
-           <|> assignVarB
-           <|> try changeStmtA
-           <|> changeStmtB
+           <|> try assignVarB
+           <|> try assignVarI
+           <|> try assignVarFC
+           <|> assignVarFD
+           <|> try changeA
+           <|> try changeB
+           <|> try changeI
+           <|> try changeFC
+           <|> changeFD
+           <|> callFunctionStmt
            <|> printStmt
 
 -- Arithmetic Expresion
@@ -69,6 +80,36 @@ compareExpresion =
 bExpression :: Parser BExpr
 bExpression = buildExpressionParser bOperators bTerm
 
+-- Function Expression
+fDeclExpression:: Parser FDExpr
+fDeclExpression = do
+        noSpacesReserved "function"
+        notFollowedBy whiteSpace
+        parameters <- parens parameterExpression
+        stmts <- braces program
+        return $ FDExpr parameters stmts
+
+parameterExpression:: Parser [String]
+parameterExpression = commaSep identifier
+
+callFunctionStmt:: Parser Stmt
+callFunctionStmt = (fCallExpression >>= (FCall >>> return))
+
+fCallExpression:: Parser FCExpr
+fCallExpression = do
+                    name <- noSpacesIdentifier
+                    parameters <- parens parameterGenericExpr
+                    return $ FCExpr name parameters
+
+parameterGenericExpr::Parser [GenericExpr]
+parameterGenericExpr = commaSep genericExpression
+
+genericExpression:: Parser GenericExpr
+genericExpression =
+                    try (fCallExpression >>= (FunctionCallE >>> return))
+                    <|> try (identifier >>= (IdentifierE >>> return))
+                    <|> (aExpression  >>= (AlgebraicE >>> return))
+                    <|> (bExpression >>= (BooleanE >>> return))
 
 -- Print Statement
 printStmt :: Parser Stmt
@@ -112,13 +153,21 @@ assignStmtGeneric word parser mapper =
                                      expr <- parser
                                      return $ mapper var expr
 
-assignLetA = assignStmtGeneric (Just "let") aExpression AssignLetA
-assignLetB = assignStmtGeneric (Just "let") bExpression AssignLetB
+assignLetA  = assignStmtGeneric (Just "let") aExpression     (flip (flip AssignLet . ValueE . AlgebraicE))
+assignLetB  = assignStmtGeneric (Just "let") bExpression     (flip (flip AssignLet . ValueE . BooleanE))
+assignLetI  = assignStmtGeneric (Just "let") identifier      (flip (flip AssignLet . ValueE . IdentifierE))
+assignLetFC = assignStmtGeneric (Just "let") fCallExpression (flip (flip AssignLet . ValueE . FunctionCallE))
+assignLetFD = assignStmtGeneric (Just "let") fDeclExpression (flip (flip AssignLet . FDeclare))
 
-assignVarA = assignStmtGeneric (Just "var") aExpression AssignVarA
-assignVarB = assignStmtGeneric (Just "var") bExpression AssignVarB
+assignVarA  = assignStmtGeneric (Just "var") aExpression     (flip (flip AssignVar . ValueE . AlgebraicE))
+assignVarB  = assignStmtGeneric (Just "var") bExpression     (flip (flip AssignVar . ValueE . BooleanE))
+assignVarI  = assignStmtGeneric (Just "var") identifier      (flip (flip AssignVar . ValueE . IdentifierE))
+assignVarFC = assignStmtGeneric (Just "var") fCallExpression (flip (flip AssignVar . ValueE . FunctionCallE))
+assignVarFD = assignStmtGeneric (Just "var") fDeclExpression (flip (flip AssignVar . FDeclare))
 
-changeStmtA = assignStmtGeneric Nothing aExpression ChangeValA
-changeStmtB = assignStmtGeneric Nothing bExpression ChangeValB
-
+changeA  = assignStmtGeneric Nothing aExpression     (flip (flip ChangeVal . ValueE . AlgebraicE))
+changeB  = assignStmtGeneric Nothing bExpression     (flip (flip ChangeVal . ValueE . BooleanE))
+changeI  = assignStmtGeneric Nothing identifier      (flip (flip ChangeVal . ValueE . IdentifierE))
+changeFC = assignStmtGeneric Nothing fCallExpression (flip (flip ChangeVal . ValueE . FunctionCallE))
+changeFD = assignStmtGeneric Nothing fDeclExpression (flip (flip ChangeVal . FDeclare))
 

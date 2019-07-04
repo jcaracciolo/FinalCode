@@ -34,6 +34,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -XFlexibleContexts
     dependencies:
     - FinalCode
 
@@ -45,5 +46,6 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -XFlexibleContexts
     dependencies:
     - FinalCode

@@ -2,10 +2,17 @@ module DataTypes(
 BBinaryOp (And , Or),
 BCompareOp (Greater, GreaterE, Equal, LessE, Less),
 BExpr(BConst, Not, BBinary, BCompare, VarB),
+
 ABinaryOp(Add , Subtract , Multiply , Divide),
 AExpr(Neg, IntConst, ABinary, VarA),
-Stmt(Seq,AssignLetA, AssignVarA, ChangeValA, AssignLetB, AssignVarB, ChangeValB, If, While, Print, Skip),
-VariableType(IntT, StrT, BoolT),
+
+Stmt(Seq, AssignLet, AssignVar, ChangeVal, FCall, If, While, Print, Skip),
+GenericExpr(AlgebraicE, BooleanE, IdentifierE, FunctionCallE),
+AssignableE(ValueE, FDeclare),
+FDExpr(FDExpr),
+FCExpr(FCExpr),
+
+VariableType(IntT, StrT, BoolT, FunctionT),
 Program,
 Scope,
 ScopeVariables) where
@@ -30,22 +37,26 @@ data AExpr = Neg AExpr
            | VarA String
              deriving (Show)
 
+data FDExpr         = FDExpr [String] Stmt deriving (Show)
+data FCExpr         = FCExpr String [GenericExpr]  deriving (Show)
+
+data GenericExpr    = AlgebraicE AExpr | BooleanE BExpr | IdentifierE String | FunctionCallE FCExpr  deriving (Show)
+data AssignableE    = ValueE GenericExpr | FDeclare FDExpr deriving (Show)
+
 data Stmt =    Seq [Stmt]
-               | AssignLetA String AExpr
-               | AssignVarA String AExpr
-               | ChangeValA String AExpr
-               | AssignLetB String BExpr
-               | AssignVarB String BExpr
-               | ChangeValB String BExpr
+               | AssignLet String AssignableE
+               | AssignVar String AssignableE
+               | ChangeVal String AssignableE
+               | FCall FCExpr
                | If BExpr Stmt Stmt
                | While BExpr Stmt
                | Print String
                | Skip
                 deriving (Show)
 
-data VariableType = IntT Integer | StrT String | BoolT Bool deriving (Show)
+data VariableType = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr deriving (Show)
 
 
 type Program = [Scope]
 type Scope = (Stmt, [ScopeVariables])
-type ScopeVariables = [(String, VariableType)]
+type ScopeVariables = (String, VariableType)]
