@@ -4,6 +4,7 @@ expectBool,
 expectStr,
 evalVar,
 addVar,
+addLet,
 modifyVar,
 ) where
 
@@ -31,15 +32,30 @@ modifyVarIfAvailable (s:ss) name value = case modifyScope s name value of
 -- And the new list of ScopeVariables is returned, else the variable is added to the first scope
 modifyVar::[ScopeVariables] -> String -> VariableType -> [ScopeVariables]
 modifyVar [] name value = [[(name, value)]]
-modifyVar (s:ss) name value = case modifyVarIfAvailable (s:ss) name value of Nothing -> (((name, value):s):ss)
-                                                                             Just scope -> scope
+modifyVar [gs] name value = case modifyScope gs name value of Nothing -> [(name, value):gs]
+                                                              Just scope -> [scope]
+modifyVar (s:ss) name value = case modifyScope s name value of Nothing -> s : (modifyVar ss name value)
+                                                               Just scope -> scope:ss
 
 -- Given a list of ScopeVariables, a new variable name is added to the first scope with the value
--- If the variable name already exists, a runtime error is thrown
+addLet::[ScopeVariables] -> String -> VariableType -> [ScopeVariables]
+addLet [] name value = [[(name, value)]]
+addLet (s:ss) name value = case modifyScope s name value of Nothing -> (((name, value):s):ss)
+                                                            Just _ -> error ("Variable " ++ name ++ " is already defined")
+
+-- Given a list of ScopeVariables, a new variable of function scope is added to the corresponding scope variables, or throws error if already defined.
 addVar::[ScopeVariables] -> String -> VariableType -> [ScopeVariables]
 addVar [] name value = [[(name, value)]]
-addVar (s:ss) name value = case modifyScope s name value of Nothing -> (((name, value):s):ss)
-                                                            Just _ -> error ("Variable " ++ name ++ " is already defined")
+addVar [fs, gs] name value = case modifyScope fs name value of Nothing -> [((name, value):fs), gs]
+                                                               Just _ -> error ("Variable " ++ name ++ " is already defined")
+addVar (s:ss) name value = addVar ss name value
+
+-- Given a list of ScopeVariables, a new variable of global scope is added to the corresponding scope variables, or throws error if already defined.
+addGlobal::[ScopeVariables] -> String -> VariableType -> [ScopeVariables]
+addGlobal [] name value = [[(name, value)]]
+addGlobal (gs:[]) name value = case modifyScope gs name value of Nothing -> [(name, value):gs]
+                                                                 Just _ -> error ("Variable " ++ name ++ " is already defined")
+addGlobal (s:ss) name value = addVar ss name value
 
 -- Evaluates a variable name in the ScopesVariable, if is not found, Nothing is returned
 evalInScope:: ScopeVariables -> String -> Maybe VariableType

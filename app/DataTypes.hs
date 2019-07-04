@@ -4,7 +4,7 @@ BCompareOp (Greater, GreaterE, Equal, LessE, Less),
 BExpr(BConst, Not, BBinary, BCompare, VarB),
 ABinaryOp(Add , Subtract , Multiply , Divide),
 AExpr(Neg, IntConst, ABinary, VarA),
-Stmt(Seq,AssignA, ChangeValA, AssignB, ChangeValB, If, While, Print, Skip),
+Stmt(Seq,AssignLetA, AssignVarA, ChangeValA, AssignLetB, AssignVarB, ChangeValB, If, While, Print, Skip),
 VariableType(IntT, StrT, BoolT),
 Program,
 Scope,
@@ -31,9 +31,11 @@ data AExpr = Neg AExpr
              deriving (Show)
 
 data Stmt =    Seq [Stmt]
-               | AssignA String AExpr
+               | AssignLetA String AExpr
+               | AssignVarA String AExpr
                | ChangeValA String AExpr
-               | AssignB String BExpr
+               | AssignLetB String BExpr
+               | AssignVarB String BExpr
                | ChangeValB String BExpr
                | If BExpr Stmt Stmt
                | While BExpr Stmt

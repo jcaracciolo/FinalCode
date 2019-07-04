@@ -40,13 +40,19 @@ eval (Seq [], context) = return $ context
 eval (Seq (s:ss), context) = do
                         newVariables <- eval (s, context)
                         eval ((Seq ss), newVariables)
-eval (AssignA name aexpr, context) = do
+eval (AssignLetA name aexpr, context) = do
+                                  return $ addLet context name (IntT (evalA aexpr context))
+
+eval (AssignVarA name aexpr, context) = do
                                   return $ addVar context name (IntT (evalA aexpr context))
 
 eval (ChangeValA name aexpr, context) = do
                                   return $ modifyVar context name (IntT (evalA aexpr context))
 
-eval (AssignB name bexpr, context) = do
+eval (AssignLetB name bexpr, context) = do
+                                  return $ addLet context name (BoolT (evalB bexpr context))
+
+eval (AssignVarB name bexpr, context) = do
                                   return $ addVar context name (BoolT (evalB bexpr context))
 
 eval (ChangeValB name bexpr, context) = do

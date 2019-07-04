@@ -2,8 +2,8 @@ x = 5
 if(true) {
     let x = 6
     if(x==6) {
-        let x = 7
-            if(x==7) {
+        var y = 7
+            if(y==7) {
                 print("7")
             } else {
                 print("NOPE")

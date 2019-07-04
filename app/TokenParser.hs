@@ -31,8 +31,10 @@ program = do
 statement :: Parser Stmt
 statement =  ifStmt
            <|> whileStmt
-           <|> try assignStmtA
-           <|> assignStmtB
+           <|> try assignLetA
+           <|> assignLetB
+           <|> try assignVarA
+           <|> assignVarB
            <|> try changeStmtA
            <|> changeStmtB
            <|> printStmt
@@ -100,27 +102,23 @@ whileStmt =
 
 -- Assign Statement
 
-assignStmtGeneric :: Parser a -> (String -> a -> Stmt) -> Parser Stmt
-assignStmtGeneric parser mapper =
+assignStmtGeneric :: Maybe String -> Parser a -> (String -> a -> Stmt) -> Parser Stmt
+assignStmtGeneric word parser mapper =
                                   do
-                                     reserved "let"
+                                     case word of Nothing -> whiteSpace
+                                                  Just w -> reserved w
                                      var  <- identifier
                                      reservedOp "="
                                      expr <- parser
                                      return $ mapper var expr
 
-assignStmtA = assignStmtGeneric aExpression AssignA
-assignStmtB = assignStmtGeneric bExpression AssignB
+assignLetA = assignStmtGeneric (Just "let") aExpression AssignLetA
+assignLetB = assignStmtGeneric (Just "let") bExpression AssignLetB
 
--- change statement
-changeStmtGeneric :: Parser a -> (String -> a -> Stmt) -> Parser Stmt
-changeStmtGeneric parser mapper =
-  do var  <- identifier
-     reservedOp "="
-     expr <- parser
-     return $ mapper var expr
+assignVarA = assignStmtGeneric (Just "var") aExpression AssignVarA
+assignVarB = assignStmtGeneric (Just "var") bExpression AssignVarB
 
-changeStmtA = changeStmtGeneric aExpression ChangeValA
-changeStmtB = changeStmtGeneric bExpression ChangeValB
+changeStmtA = assignStmtGeneric Nothing aExpression ChangeValA
+changeStmtB = assignStmtGeneric Nothing bExpression ChangeValB
 
 

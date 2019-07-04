@@ -44,6 +44,7 @@ languageDef =
                                      , "and"
                                      , "or"
                                      , "let"
+                                     , "var"
                                      ]
            , Token.reservedOpNames = [ "+", "-", "*", "/", "="
                                      , "<", ">", ">=", "<=", "==", "and", "or", "not"
