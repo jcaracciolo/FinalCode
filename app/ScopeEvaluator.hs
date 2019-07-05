@@ -3,24 +3,24 @@ expectInt,
 expectBool,
 expectStr,
 expectFn,
-evalVar,
 addVar,
 addLet,
 modifyVar,
+getVar,
 hasReturned,
 ) where
 
 import DataTypes
 import Control.Arrow
 import Control.Exception
+import Control.Monad.State.Lazy
 
-isDefined:: ScopeVariables -> String -> Bool
-isDefined [] name = False
-isDefined (v:vs) name = fst v == name || isDefined vs name
+isDefined::String -> ScopeVariables -> Bool
+isDefined name  []      = False
+isDefined name  (v:vs)  = fst v == name || isDefined name vs
 
-
-failIfDefined::ScopeVariables -> String -> ProgramState -> ProgramState
-failIfDefined s name result = if isDefined s name then error ("Variable " ++ name ++ " is already defined") else result
+failIfDefined::String -> ScopeVariables -> ProgramState -> ProgramState
+failIfDefined name s result = if isDefined name s then error ("Variable " ++ name ++ " is already defined") else result
 
 -- Given a ScopeVariables, if the variable name is inside the scope, then its value is modified to value
 -- And the new ScopeVariables are returned, else Nothing
@@ -32,31 +32,31 @@ modifyScope (v:vs) name value = if (fst v) == name
 
 -- Given a list of ScopeVariables, if the variable name is inside any scope, its value is modified to value
 -- And the new list of ScopeVariables is returned, else the variable is added to the second scope
-modifyVar::ProgramState -> String -> VariableType -> ProgramState
-modifyVar [] name value = [[(name, value)], []] -- This is the first variable of the whole program and the global scope was not created
-modifyVar [gs] name value = case modifyScope gs name value of Nothing -> [(name, value):gs]
-                                                              Just scope -> [scope]
+modifyVar::String -> VariableType -> ProgramState ->  ProgramState
+modifyVar name value []     = [[(name, value)], []] -- This is the first variable of the whole program and the global scope was not created
+modifyVar name value [gs]   = case modifyScope gs name value of Nothing -> [(name, value):gs]
+                                                                Just scope -> [scope]
 
-modifyVar (s:ss) name value = case modifyScope s name value of Nothing -> s : (modifyVar ss name value)
+modifyVar name value (s:ss) = case modifyScope s name value of Nothing -> s : (modifyVar name value ss)
                                                                Just scope -> scope:ss
 
 -- Given a list of ScopeVariables, a new variable name is added to the first scope with the value
-addLet::ProgramState -> String -> VariableType -> ProgramState
-addLet [] name value     = [[(name, value)]]
-addLet (s:ss) name value = failIfDefined s name (((name, value):s):ss)
+addLet:: String -> VariableType -> ProgramState -> ProgramState
+addLet name value []      = [[(name, value)]]
+addLet name value (s:ss)  = failIfDefined name s (((name, value):s):ss)
 
 -- Given a list of ScopeVariables, a new variable of function scope is added to the corresponding scope variables, or throws error if already defined.
-addVar::ProgramState -> String -> VariableType -> ProgramState
-addVar [] name value        = [[(name, value)]]
-addVar [gs] name value      = failIfDefined gs name [(name, value):gs]
-addVar [fs, gs] name value  = failIfDefined fs name [((name, value):fs), gs]
-addVar (s:ss) name value    = failIfDefined s name  (s:(addVar ss name value))
+addVar::String -> VariableType -> ProgramState ->  ProgramState
+addVar name value []        = [[(name, value)]]
+addVar name value [gs]      = failIfDefined name gs [(name, value):gs]
+addVar name value [fs, gs]  = failIfDefined name fs [((name, value):fs), gs]
+addVar name value (s:ss)    = failIfDefined name s  (s:(addVar name value ss))
 
 -- Given a list of ScopeVariables, a new variable of global scope is added to the corresponding scope variables, or throws error if already defined.
-addGlobal::ProgramState -> String -> VariableType -> ProgramState
-addGlobal [] name value     = [[(name, value)]]
-addGlobal [gs] name value   = failIfDefined gs name [(name, value):gs]
-addGlobal (s:ss) name value = failIfDefined s  name (s:(addGlobal ss name value))
+addGlobal::String -> VariableType -> ProgramState ->  ProgramState
+addGlobal name value [] = [[(name, value)]]
+addGlobal name value [gs] = failIfDefined name gs [(name, value):gs]
+addGlobal name value (s:ss) = failIfDefined name s (s:(addGlobal name value ss))
 
 -- Evaluates a variable name in the ScopesVariable, if is not found, Nothing is returned
 evalInScope:: ScopeVariables -> String -> Maybe VariableType
@@ -71,6 +71,11 @@ evalVar:: ProgramState -> String -> VariableType
 evalVar [] name = error ("Variable " ++ name ++ " is not defined in the scope")
 evalVar (s:ss) name = case evalInScope s name of Nothing -> evalVar ss name
                                                  Just value -> value
+getVar::String -> MState ProgramState VariableType
+getVar name = do
+              state <- get
+              return $ evalVar state name
+
 expectInt:: VariableType -> Integer
 expectInt (IntT i) = i
 expectInt t = error ("Expected Integer in but got " ++ (show t))

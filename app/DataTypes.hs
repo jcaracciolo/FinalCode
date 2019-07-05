@@ -13,10 +13,11 @@ FDExpr(..),
 FCExpr(..),
 
 VariableType(..),
-Program,
 ProgramState,
-ScopeVariables) where
+ScopeVariables,
+MState) where
 
+import Control.Monad.State
 
 -- Binary Operations
 data BBinaryOp = And | Or deriving (Show)
@@ -35,6 +36,7 @@ data AExpr = Neg AExpr
            | IntConst Integer
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
+           | AFCExpr FCExpr
              deriving (Show)
 
 data FDExpr         = FDExpr [String] Stmt deriving (Show)
@@ -57,10 +59,8 @@ data Stmt =    Seq [Stmt]
 data VariableType = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | Undefined deriving (Show)
 
 
-type Program = (Stmt, ProgramState)
 type ProgramState = [ScopeVariables]
 type ProgramExecution a = (ProgramState, IO ())
 type ScopeVariables = [(String, VariableType)]
 
--- newtype IOState s a = IOState { runState :: s -> (a, s) }
-
+type MState s = StateT s IO
