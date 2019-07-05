@@ -45,6 +45,7 @@ statement =  (ifStmt
 -- Arithmetic Expresion
 aTerm =  parens aExpression
      <|> liftM IntConst integer
+     <|> try (liftM AFCall fCallExpression)
      <|> liftM VarA identifier
 
 aExpression :: Parser AExpr
@@ -54,6 +55,7 @@ aExpression = buildExpressionParser aOperators aTerm
 bTerm =  parens bExpression
      <|> (reserved "true"  >> return (BConst True) )
      <|> (reserved "false" >> return (BConst False))
+     <|> try (liftM BFCall fCallExpression)
      <|> try compareExpresion
      <|> liftM VarB identifier
 
@@ -152,27 +154,27 @@ returnStmtGeneric parser mapper = do
 
 assignLet = try assignLetA
         <|> try assignLetB
-        <|> try assignLetI
         <|> try assignLetFC
         <|> try assignLetFD
+        <|> try assignLetI
 
 assignVar = try assignVarA
         <|> try assignVarB
-        <|> try assignVarI
         <|> try assignVarFC
         <|> try assignVarFD
+        <|> try assignVarI
 
 changeVar = try changeFC
-        <|> try changeB
-        <|> try changeI
         <|> try changeA
+        <|> try changeB
         <|> try changeFD
+        <|> try changeI
 
 returnStmt = returnStmtA
          <|> returnStmtB
-         <|> returnStmtI
          <|> returnStmtFC
          <|> returnStmtFD
+         <|> returnStmtI
 
 
 assignLetA  = assignStmtGeneric (Just "let") aExpression     (flip (flip AssignLet . ValueE . AlgebraicE))

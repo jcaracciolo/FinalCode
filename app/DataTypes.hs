@@ -28,6 +28,7 @@ data BExpr = BConst Bool
           | BBinary BBinaryOp BExpr BExpr
           | BCompare BCompareOp AExpr AExpr
           | VarB String
+          | BFCall FCExpr
           deriving (Show)
 
 
@@ -37,6 +38,7 @@ data AExpr = Neg AExpr
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
            | AFCExpr FCExpr
+           | AFCall FCExpr
              deriving (Show)
 
 data FDExpr         = FDExpr [String] Stmt deriving (Show)

@@ -8,7 +8,6 @@ import System.Environment
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
 import Text.ParserCombinators.Parsec.Language
-import qualified Text.ParserCombinators.Parsec.Token as Token
 import DataTypes
 import LanguageDef
 import TokenParser
@@ -29,10 +28,12 @@ evalA (ABinary Add expr1 expr2)         = evalABin expr1 expr2 (+)
 evalA (ABinary Subtract expr1 expr2)    = evalABin expr1 expr2 (-)
 evalA (ABinary Multiply expr1 expr2)    = evalABin expr1 expr2 (*)
 evalA (ABinary Divide expr1 expr2)      = evalABin expr1 expr2 div
-evalA (VarA s)                          = getVar s >>= (\i -> return $ expectInt (i))
+evalA (VarA s)                          = getVar s >>= (expectInt >>> return)
+evalA (AFCall fcexpr)                   = evalFCall fcexpr >>= (expectInt >>> return)
 
 
 -- -------------- BOOLEAN EVALUATOR -------------------------------
+
 evalBBin::BExpr -> BExpr -> (Bool -> Bool -> Bool) -> MState ProgramState Bool
 evalBBin bexpr1 bexpr2 op = do
                              b1 <- evalB bexpr1
@@ -49,22 +50,27 @@ evalB (BCompare GreaterE aexpr1 aexpr2)     = evalABin aexpr1 aexpr2 (>=)
 evalB (BCompare Equal aexpr1 aexpr2)        = evalABin aexpr1 aexpr2 (==)
 evalB (BCompare LessE aexpr1 aexpr2)        = evalABin aexpr1 aexpr2 (<=)
 evalB (BCompare Less aexpr1 aexpr2)         = evalABin aexpr1 aexpr2 (< )
-evalB (VarB s)                              = getVar s >>= (\b -> return $ expectBool (b))
+evalB (VarB s)                              = getVar s >>= (expectBool >>> return)
+evalB (BFCall fcexpr)                       = evalFCall fcexpr >>= (expectBool >>> return)
 
 
 -- -------------- FUNCTION CALL EVALUATOR -------------------------------
+
+evalFCall::FCExpr -> MState ProgramState VariableType
+evalFCall (FCExpr name params)   = do fn <- getVar name
+                                      evalF (expectFn fn) params
+
 evalF::FDExpr -> [GenericExpr] -> MState ProgramState VariableType
-evalF (FDExpr parameters code) paramExpr = do
-                                           appliedParams <- evalParams parameters paramExpr
-                                           scopeAfterParams <- get
-                                           if length scopeAfterParams == 0 then error "Global context was not found"
-                                           else do
-                                                put [appliedParams, (last scopeAfterParams)]
-                                                eval code
-                                                newScope <- get
-                                                returned <- getVar "return"
-                                                put ((init scopeAfterParams) ++ [(last newScope)])
-                                                return returned
+evalF (FDExpr parameters code) paramExpr = do appliedParams <- evalParams parameters paramExpr
+                                              scopeAfterParams <- get
+                                              if length scopeAfterParams == 0 then error "Global context was not found"
+                                              else do
+                                                   put [appliedParams, (last scopeAfterParams)]
+                                                   eval code
+                                                   newScope <- get
+                                                   returned <- getVar "return"
+                                                   put ((init scopeAfterParams) ++ [(last newScope)])
+                                                   return returned
 
 evalParams::[String] -> [GenericExpr] -> MState ProgramState ScopeVariables
 evalParams names exprs = do appliedParams <- evalParamsInSequence (zip names exprs)
@@ -75,7 +81,6 @@ evalParamsInSequence [] = return []
 evalParamsInSequence ((s, g):otherParams) = do value <- evalG g
                                                appliedParams <- evalParamsInSequence otherParams
                                                return $ (s, value):appliedParams
---
 
 
 -- -------------- GENERAL EXPRESSION EVALUATOR -------------------------------
@@ -83,8 +88,8 @@ evalG::GenericExpr -> MState ProgramState VariableType
 evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (IntT >>> return)
 evalG (BooleanE bexpr)                       = evalB bexpr >>= (BoolT >>> return)
 evalG (IdentifierE name)                     = getVar name >>= return
-evalG (FunctionCallE (FCExpr name params))   = do fn <- getVar name
-                                                  evalF (expectFn fn) params
+evalG (FunctionCallE fcexpr)                 = evalFCall fcexpr >>= return
+
 
 -- -------------- ASSIGNMENT EVALUATOR -------------------------------
 
@@ -101,16 +106,12 @@ evalAssignV::ScopeAssigner -> String -> VariableType -> MState ProgramState ()
 evalAssignV assigner name value  = modify (assigner name value)
 
 evalAssignF::ScopeAssigner -> String -> FCExpr -> MState ProgramState ()
-evalAssignF sa name (FCExpr fName params) = do
-                                            fn <- getVar fName
-                                            returned <- evalF (expectFn fn) params
-                                            evalAssignV sa name returned
+evalAssignF sa name fcexpr= evalFCall fcexpr >>= (evalAssignV sa name)
 
 -- -------------- MAIN EVALUATOR -------------------------------
 eval :: Stmt -> MState ProgramState ()
 eval (Seq []) = return ()
 eval (Seq (s:ss)) = do
-                    context <- get
                     eval (s)
                     modifiedContext <- get
                     if hasReturned modifiedContext then return () else eval (Seq ss)
@@ -118,28 +119,23 @@ eval (Seq (s:ss)) = do
 eval (AssignLet name (ValueE (AlgebraicE    aexpr)))   = evalAssign  addLet name (evalA aexpr) IntT
 eval (AssignLet name (ValueE (BooleanE      bexpr)))   = evalAssign  addLet name (evalB bexpr) BoolT
 eval (AssignLet name (ValueE (IdentifierE oldName)))   = evalAssign  addLet name (getVar oldName) id
-eval (AssignLet name (FDeclare fdexpr))                = evalAssignV  addLet name (FunctionT fdexpr)
-eval (AssignLet name (ValueE (FunctionCallE (FCExpr fName params))))  = do declaration <- getVar fName
-                                                                           returned <- evalF (expectFn declaration) params
-                                                                           evalAssignV addLet name returned
+eval (AssignLet name (FDeclare fdexpr))                = evalAssignV addLet name (FunctionT fdexpr)
+eval (AssignLet name (ValueE (FunctionCallE fcexpr)))  = evalAssignF addLet name fcexpr
 
 eval (AssignVar name (ValueE (AlgebraicE    aexpr)))   = evalAssign  addVar name (evalA aexpr) IntT
 eval (AssignVar name (ValueE (BooleanE      bexpr)))   = evalAssign  addVar name (evalB bexpr) BoolT
 eval (AssignVar name (ValueE (IdentifierE oldName)))   = evalAssign  addVar name (getVar oldName) id
-eval (AssignVar name (FDeclare fdexpr))                = evalAssignV  addVar name (FunctionT fdexpr)
-eval (AssignVar name (ValueE (FunctionCallE (FCExpr fName params))))  = do declaration <- getVar fName
-                                                                           returned <- evalF (expectFn declaration) params
-                                                                           evalAssignV addVar name returned
+eval (AssignVar name (FDeclare fdexpr))                = evalAssignV addVar name (FunctionT fdexpr)
+eval (AssignVar name (ValueE (FunctionCallE fcexpr)))  = evalAssignF addVar name fcexpr
 
 eval (ChangeVal name (ValueE (AlgebraicE    aexpr)))   = evalAssign  modifyVar name (evalA aexpr) IntT
 eval (ChangeVal name (ValueE (BooleanE      bexpr)))   = evalAssign  modifyVar name (evalB bexpr) BoolT
 eval (ChangeVal name (ValueE (IdentifierE oldName)))   = evalAssign  modifyVar name (getVar oldName) id
-eval (ChangeVal name (FDeclare fdexpr))                = evalAssignV  modifyVar name (FunctionT fdexpr)
-eval (ChangeVal name (ValueE (FunctionCallE (FCExpr fName params))))  = do declaration <- getVar fName
-                                                                           returned <- evalF (expectFn declaration) params
-                                                                           evalAssignV modifyVar name returned
+eval (ChangeVal name (FDeclare fdexpr))                = evalAssignV modifyVar name (FunctionT fdexpr)
+eval (ChangeVal name (ValueE (FunctionCallE fcexpr)))  = evalAssignF modifyVar name fcexpr
 
-eval ((If bexpr s1 s2))                        = do cond <- evalB bexpr
+
+eval (If bexpr s1 s2)                          = do cond <- evalB bexpr
                                                     state <- get
                                                     put ([]:state)
                                                     if cond then eval s1 else eval s2
@@ -147,11 +143,8 @@ eval ((If bexpr s1 s2))                        = do cond <- evalB bexpr
                                                     put (tail newState)
                                                     return ()
 
-eval ((While bexpr stmt))                      = eval(If bexpr (Seq [stmt, (While bexpr stmt)]) Skip)
-
-eval(FCall (FCExpr name params)) =  do declaration <- getVar name
-                                       _ <- evalF (expectFn declaration) params
-                                       return ()
+eval (While bexpr stmt)                        = eval(If bexpr (Seq [stmt, (While bexpr stmt)]) Skip)
+eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
 eval (Print s) = liftIO (print s) >> return ()
 eval (a) = liftIO (print a) >> (return ())
