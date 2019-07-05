@@ -14,6 +14,7 @@ a = function() {
 
 execute = function() {
     b= a()
+    uno = z(1)
     if(b==uno) {
         print("Variable B y Z(1) is UNO!!!")
     } else {

@@ -62,13 +62,12 @@ evalF (FDExpr parameters code) paramExpr = do
                                                 put [appliedParams, (last scopeAfterParams)]
                                                 eval code
                                                 newScope <- get
-                                                put ((init scopeAfterParams) ++ [(last newScope)])
                                                 returned <- getVar "return"
+                                                put ((init scopeAfterParams) ++ [(last newScope)])
                                                 return returned
 
 evalParams::[String] -> [GenericExpr] -> MState ProgramState ScopeVariables
 evalParams names exprs = do appliedParams <- evalParamsInSequence (zip names exprs)
-                            newContext <- get
                             return (("return", Undefined):appliedParams)
 
 evalParamsInSequence::[(String, GenericExpr)] -> MState ProgramState ScopeVariables
