@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - parsec >=3.1.13.0
 - mtl >= 2.2.2
+- text >= 1.2.3.1
 
 library:
   source-dirs: src

@@ -1,6 +1,5 @@
 two = 0
 answer = 0
-//Create a Global variables and functions
 
 getOneAndCreateZ = function() {
                         var two = 2 //creates a local variable

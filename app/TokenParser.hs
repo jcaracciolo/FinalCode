@@ -37,27 +37,29 @@ statement =  (ifStmt
            <|> assignVar
            <|> changeVar
            <|> returnStmt
-           <|> printStmt) >>= (\stmt -> do
+           <|> printStmt
+           <|> parens statement) >>= (\stmt -> do
                                           optional semi
                                           return stmt
                               )
 
+
 -- Arithmetic Expresion
-aTerm =  parens aExpression
-     <|> liftM IntConst integer
+aTerm =  liftM IntConst integer
      <|> try (liftM AFCall fCallExpression)
      <|> liftM VarA identifier
+     <|> parens aExpression
 
 aExpression :: Parser AExpr
 aExpression = buildExpressionParser aOperators aTerm
 
 -- Boolean Expresion
-bTerm =  parens bExpression
-     <|> (reserved "true"  >> return (BConst True) )
+bTerm = (reserved "true"  >> return (BConst True) )
      <|> (reserved "false" >> return (BConst False))
      <|> try (liftM BFCall fCallExpression)
      <|> try compareExpresion
-     <|> liftM VarB identifier
+     <|> try (liftM VarB identifier)
+     <|> parens bTerm
 
 relation =   (reservedOp ">" >> return Greater)
          <|> (reservedOp "<" >> return Less)
@@ -150,7 +152,7 @@ returnStmtGeneric :: Parser a -> (a -> AssignableE) -> Parser Stmt
 returnStmtGeneric parser mapper = do
                                     reserved "return"
                                     expr <- parser
-                                    return $ ChangeVal "return" (mapper expr)
+                                    return $ Return (mapper expr)
 
 assignLet = try assignLetA
         <|> try assignLetB

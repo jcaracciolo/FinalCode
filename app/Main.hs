@@ -4,7 +4,9 @@ import Control.Monad
 import Control.Arrow
 import Control.Monad.State.Lazy
 import Data.Tuple
+import Data.List
 import System.Environment
+import Text.Parsec.Error
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
 import Text.ParserCombinators.Parsec.Language
@@ -12,6 +14,7 @@ import DataTypes
 import LanguageDef
 import TokenParser
 import ScopeEvaluator
+import PrettyPrinter
 
 -- -------------- ARITMETIC EVALUATOR -------------------------------
 
@@ -134,6 +137,9 @@ eval (ChangeVal name (ValueE (IdentifierE oldName)))   = evalAssign  modifyVar n
 eval (ChangeVal name (FDeclare fdexpr))                = evalAssignV modifyVar name (FunctionT fdexpr)
 eval (ChangeVal name (ValueE (FunctionCallE fcexpr)))  = evalAssignF modifyVar name fcexpr
 
+eval (Return expr)                                     = eval (ChangeVal "return" expr)
+
+
 
 eval (If bexpr s1 s2)                          = do cond <- evalB bexpr
                                                     state <- get
@@ -153,6 +159,32 @@ main = do
     [filename] <- getArgs
     code <- readFile filename
 
-    case parse program filename code of
+    case parse (whiteSpace >> program) filename code of
         Left e  -> print e
         Right r -> runStateT (eval r) [[]] >> print "DONE"
+
+-- getUserLinesUntil ::(String -> Bool) -> IO String                      -- optional type signature
+-- getUserLines = go ""
+--   where go contents = do
+--     line <- getLine
+--     if line == "q"
+--         then return contents
+--         else go (contents ++ line ++ "\n")
+--
+-- isEndOfInput::Either ParseError a -> Bool
+-- isEndOfInput e = case e of
+--
+-- main =
+--     case parse (whiteSpace >> program) filename code of
+--         Left e  -> if (isInfixOf ("unexpected end of input") (show e)) then print "Keep Typing" else print e
+--         Right r -> runStateT (eval r) [[]] >> print "DONE"
+
+
+-- main = do
+--     [filename] <- getArgs
+--     code <- readFile filename
+--
+--     case parse program filename code of
+--         Left e  -> print e
+--         Right r -> putStrLn $ snd . snd $ runState (prettyPrint r) (0, "")
+--

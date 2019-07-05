@@ -120,7 +120,7 @@ theReservedNames
         where
           reserved = reservedNames languageDef
 
-identifier  = Token.identifier  lexer
+identifier' = Token.identifier  lexer
 reserved    = Token.reserved    lexer -- parses a reserved name
 reservedOp  = Token.reservedOp  lexer -- parses an operator
 braces      = Token.braces      lexer -- parses braces
@@ -129,6 +129,4 @@ integer     = Token.integer     lexer -- parses an integer
 semi        = Token.semi        lexer -- parses a semicolon
 commaSep    = Token.commaSep    lexer -- parses a semicolon
 whiteSpace  = Token.whiteSpace  lexer -- parses whiteSpace
-
-
-
+identifier  = (try (parens identifier)) <|> identifier'

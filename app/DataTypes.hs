@@ -51,6 +51,7 @@ data Stmt =    Seq [Stmt]
                | AssignLet String AssignableE
                | AssignVar String AssignableE
                | ChangeVal String AssignableE
+               | Return AssignableE
                | FCall FCExpr
                | If BExpr Stmt Stmt
                | While BExpr Stmt
