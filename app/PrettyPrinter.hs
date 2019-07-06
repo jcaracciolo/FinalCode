@@ -1,11 +1,16 @@
 module PrettyPrinter(
-prettyPrint
+mainPrettyPrint
 )where
 import DataTypes
-
-import Control.Monad.State.Lazy
+import TokenParser
+import System.Environment
+import Control.Monad.State
 import Control.Arrow
 import Data.List
+import LanguageDef
+import qualified Text.ParserCombinators.Parsec as Parsec
+
+
 type PrinterState = (TabCount, String)
 type TabCount = Int
 
@@ -165,3 +170,11 @@ prettyPrint(FCall fcexpr)                        = newLine >> prettyPrintFC fcex
 
 prettyPrint (Print s) = newLine >> mAppend ("print(\"" ++ s ++ "\")")
 prettyPrint (a) = newLine >> mAppend ("Not Sure about ")
+
+mainPrettyPrint = do
+    [filename] <- getArgs
+    code <- readFile filename
+
+    case Parsec.parse (whiteSpace >> program) filename code of
+        Left e  -> print e
+        Right r -> putStrLn $ snd . snd $ runState (prettyPrint r) (0, "")
