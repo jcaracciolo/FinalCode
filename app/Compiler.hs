@@ -71,7 +71,7 @@ evalF (FDExpr parameters code) paramExpr = do appliedParams <- evalParams parame
                                               scopeAfterParams <- get
                                               if length scopeAfterParams == 0 then error "Global context was not found"
                                               else do
-                                                   put [appliedParams, (last scopeAfterParams)]
+                                                   put [[], appliedParams, (last scopeAfterParams)]
                                                    eval code
                                                    newScope <- get
                                                    returned <- getVar "return"

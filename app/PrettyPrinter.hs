@@ -135,8 +135,7 @@ prettyPrint (Return assignable)           = do newLine
                                                prettyPrintAssignable assignable
 
 prettyPrint (If bexpr s1 s2)              = do newLine
-                                               mAppend "if"
-                                               mAppend "("
+                                               mAppend "if("
                                                cond <- prettyPrintB bexpr
                                                mAppend cond
                                                mAppend ") {"
