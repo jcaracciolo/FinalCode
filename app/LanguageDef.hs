@@ -2,8 +2,6 @@ module LanguageDef(
 languageDef,
 lexer,
 identifier,
-noSpacesIdentifier,
-noSpacesReserved,
 reserved,
 reservedOp,
 braces,
@@ -13,7 +11,7 @@ semi,
 whiteSpace,
 aOperators,
 bOperators,
-commaSep
+commaSep,
 ) where
 
 import DataTypes
@@ -21,8 +19,6 @@ import System.IO
 import System.Environment
 import Control.Monad
 import Data.Tuple
-import Data.Char
-import Data.List
 import System.Environment
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Expr
@@ -54,11 +50,10 @@ languageDef =
                                      , "return"
                                      ]
            , Token.reservedOpNames = [ "+", "-", "*", "/", "="
-                                     , "<", ">", ">=", "<=", "==", "and", "or", "not"
+                                     , "<", ">", ">=", "<=", "==", "and", "or", "not", ".", ":"
                                      ]
            , Token.caseSensitive = True
            }
-
 
 aOperators =[
                 [ Prefix (reservedOp "-"   >> return Neg ) ],
@@ -81,45 +76,6 @@ bOperators = [
              ]
 
 lexer = Token.makeTokenParser languageDef
-
-
-noSpacesReserved name = string name
-
-ident
-    = do{ c <- identStart languageDef
-        ; cs <- many (identLetter languageDef)
-        ; return (c:cs)
-        }
-    <?> "identifier"
-
-noSpacesIdentifier  = try $
-                      do{ name <- ident
-                        ; if (isReservedName name)
-                           then unexpected ("reserved word " ++ show name)
-                           else return name
-                        }
-
-isReservedName name
-    = isReserved theReservedNames caseName
-    where
-      caseName      | caseSensitive languageDef  = name
-                    | otherwise               = map toLower name
-
-isReserved names name
-    = scan names
-    where
-      scan []       = False
-      scan (r:rs)   = case (compare r name) of
-                        LT  -> scan rs
-                        EQ  -> True
-                        GT  -> False
-
-theReservedNames
-    | caseSensitive languageDef  = sort reserved
-    | otherwise                  = sort . map (map toLower) $ reserved
-        where
-          reserved = reservedNames languageDef
-
 identifier' = Token.identifier  lexer
 reserved    = Token.reserved    lexer -- parses a reserved name
 reservedOp  = Token.reservedOp  lexer -- parses an operator

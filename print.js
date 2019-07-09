@@ -17,20 +17,32 @@ getOneAndCreateZ = function() {
 
 l = 0
 
-execute = function() {
-    b=getOneAndCreateZ()
+o = {
+    a: {
+          c: function() {
+              let execute = function() {
+                  b = getOneAndCreateZ()
 
-    //Function z is global, also l
-    if(b==z(1)) {
-        print("Variable B y Z(1) are One!!!")
-    } else {
-        print("NOPE")
+                  //Function z is global, also l
+                  if (b == z(1)) {
+                      print("Variable B y Z(1) are One!!!")
+                  } else {
+                      print("NOPE")
+                  }
+
+                  return 1
+              }
+
+              return execute
+          }
+      }
+
     }
 
-     return 1
-}
 
 i = 0
 while(i<10) {
-    i=1+i; execute()
+    i=1+i;
+    let a = o.a.c()
+    a()
 }

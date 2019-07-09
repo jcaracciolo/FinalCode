@@ -95,6 +95,7 @@ evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (IntT >>> return)
 evalG (BooleanE bexpr)                       = evalB bexpr >>= (BoolT >>> return)
 evalG (IdentifierE name)                     = getVar name >>= return
 evalG (FunctionCallE fcexpr)                 = evalFCall fcexpr >>= return
+evalG (ObjCallE obj)                         = evalObjCall obj >>= return
 
 
 -- -------------- ASSIGNMENT EVALUATOR -------------------------------
@@ -103,16 +104,41 @@ type ScopeAssigner = String -> VariableType -> ProgramState -> ProgramState
 type Evaluator a = MState ProgramState a
 type Caster a = a -> VariableType
 
-evalAssign::ScopeAssigner -> String -> Evaluator a -> Caster a -> MState ProgramState ()
-evalAssign assigner name evaluator caster  = do
-                                            value <- evaluator
-                                            modify (assigner name (caster value))
+evalAssign::ScopeAssigner -> String -> AssignableE -> MState ProgramState ()
+evalAssign assigner name assign  = do
+                                   value <- evalAssignable assign
+                                   modify (assigner name value)
 
 evalAssignV::ScopeAssigner -> String -> VariableType -> MState ProgramState ()
 evalAssignV assigner name value  = modify (assigner name value)
 
 evalAssignF::ScopeAssigner -> String -> FCExpr -> MState ProgramState ()
 evalAssignF sa name fcexpr= evalFCall fcexpr >>= (evalAssignV sa name)
+
+evalAssignable::AssignableE -> MState ProgramState VariableType
+evalAssignable(ValueE    g) = evalG g
+evalAssignable(FDeclare fd) = return $ FunctionT fd
+evalAssignable(ODec (ObjDec vars)) = do
+                                    variables <- mapM mapTuple vars
+                                    return $ ObjectT variables
+                                        where mapTuple t = let (s, a) = t in
+                                                do val <- evalAssignable a
+                                                   return (s, val)
+
+-- -------------- OBJECT EVALUATOR -----------------------------
+evalObjCall::ObjCall -> MState ProgramState VariableType
+evalObjCall(ObjCall o s)    = evalObjCall o >>= return . expectObject >>= return . (getVariableInObject s)
+evalObjCall(ObjFCall o (FCExpr fName params))   = do
+                                obj <- evalObjCall o
+                                evalF (expectFn (getVariableInObject fName (expectObject obj))) params
+
+evalObjCall(ObjFBase fcexpr)         = evalFCall fcexpr
+evalObjCall(ObjIBase identifier)     = getVar identifier
+
+getVariableInObject::String -> [(String, VariableType)]-> VariableType
+getVariableInObject name [] = error ("The object has no attribute called " ++ name)
+getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then ovalue else getVariableInObject name ss
+
 
 -- -------------- MAIN EVALUATOR -------------------------------
 eval :: Stmt -> MState ProgramState ()
@@ -122,25 +148,12 @@ eval (Seq (s:ss)) = do
                     modifiedContext <- get
                     if hasReturned modifiedContext then return () else eval (Seq ss)
 
-eval (AssignLet name (ValueE (AlgebraicE    aexpr)))   = evalAssign  addLet name (evalA aexpr) IntT
-eval (AssignLet name (ValueE (BooleanE      bexpr)))   = evalAssign  addLet name (evalB bexpr) BoolT
-eval (AssignLet name (ValueE (IdentifierE oldName)))   = evalAssign  addLet name (getVar oldName) id
-eval (AssignLet name (FDeclare fdexpr))                = evalAssignV addLet name (FunctionT fdexpr)
-eval (AssignLet name (ValueE (FunctionCallE fcexpr)))  = evalAssignF addLet name fcexpr
+eval (AssignLet name assignable)              = evalAssign  addLet name assignable
+eval (AssignVar name assignable)             = evalAssign  addVar name assignable
+eval (ChangeVal name assignable)              = evalAssign  modifyVar name assignable
+eval (Return expr)                            = eval (ChangeVal "return" expr)
 
-eval (AssignVar name (ValueE (AlgebraicE    aexpr)))   = evalAssign  addVar name (evalA aexpr) IntT
-eval (AssignVar name (ValueE (BooleanE      bexpr)))   = evalAssign  addVar name (evalB bexpr) BoolT
-eval (AssignVar name (ValueE (IdentifierE oldName)))   = evalAssign  addVar name (getVar oldName) id
-eval (AssignVar name (FDeclare fdexpr))                = evalAssignV addVar name (FunctionT fdexpr)
-eval (AssignVar name (ValueE (FunctionCallE fcexpr)))  = evalAssignF addVar name fcexpr
-
-eval (ChangeVal name (ValueE (AlgebraicE    aexpr)))   = evalAssign  modifyVar name (evalA aexpr) IntT
-eval (ChangeVal name (ValueE (BooleanE      bexpr)))   = evalAssign  modifyVar name (evalB bexpr) BoolT
-eval (ChangeVal name (ValueE (IdentifierE oldName)))   = evalAssign  modifyVar name (getVar oldName) id
-eval (ChangeVal name (FDeclare fdexpr))                = evalAssignV modifyVar name (FunctionT fdexpr)
-eval (ChangeVal name (ValueE (FunctionCallE fcexpr)))  = evalAssignF modifyVar name fcexpr
-
-eval (Return expr)                                     = eval (ChangeVal "return" expr)
+eval (OCall objCall)                          = evalObjCall objCall >> return ()
 
 
 

@@ -3,6 +3,7 @@ expectInt,
 expectBool,
 expectStr,
 expectFn,
+expectObject,
 addVar,
 addLet,
 modifyVar,
@@ -91,6 +92,10 @@ expectStr t = error ("Expected String in but got " ++ (show t))
 expectFn:: VariableType ->  FDExpr
 expectFn (FunctionT f) = f
 expectFn t = error ("Expected String in but got " ++ (show t))
+
+expectObject:: VariableType ->  [(String, VariableType)]
+expectObject (ObjectT elems) = elems
+expectObject t = error ("Expected Object in but got " ++ (show t))
 
 hasReturned::ProgramState -> Bool
 hasReturned [] = False
