@@ -128,15 +128,15 @@ evalAssignable(ODec (ObjDec vars)) = do
 
 evalChange::ValueHolder -> AssignableE -> MState ProgramState ()
 evalChange (IdentVH name) assignable = evalAssign modifyVar name assignable
-evalChange (ObjectVH (ObjCall o name)) assignable = do
-                                        obj <- evalObjCall o
-                                        value <- evalAssignable assignable
-                                        case getOriginalObjectVariable o of
-                                                Nothing -> return ()
-                                                Just var -> let newObject = modifyInObject (expectObject obj) name value in
-                                                    do
-                                                    modify(modifyVar var (ObjectT newObject))
-                                                    return ()
+-- evalChange (ObjectVH (ObjCall o name)) assignable = do
+--                                         obj <- evalObjCall o
+--                                         value <- evalAssignable assignable
+--                                         case getOriginalObjectVariable o of
+--                                                 Nothing -> return ()
+--                                                 Just var -> let newObject = modifyInObject (expectObject obj) name value in
+--                                                     do
+--                                                     modify(modifyVar var (ObjectT newObject))
+--                                                     return ()
 
 
 
@@ -166,16 +166,19 @@ evalObjCall(ObjIBase identifier)     = do
                                        guard (length (expectObject var) >= 0)
                                        return var
 
-getVariableInObject::String -> [(String, VariableType)]-> Maybe VariableType
-getVariableInObject name [] = Nothing
-getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then Just ovalue else getVariableInObject name ss >>= Just
+getCallObj::ObjCall -> Maybe [String]
+getCallObj (ObjCall o s) = getCallObj o >>= ((s:) >>> Just)
+getCallObj (ObjIBase _) = Just []
+getCallObj (ObjFCall _ _) = Nothing
+getCallObj (ObjFBase _) = Nothing
 
-getOriginalObjectVariable::ObjCall -> Maybe String
-getOriginalObjectVariable(ObjCall o _)    = getOriginalObjectVariable o
-getOriginalObjectVariable(ObjFCall o _)   = getOriginalObjectVariable o
-getOriginalObjectVariable(ObjFBase _)          = Nothing
-getOriginalObjectVariable(ObjIBase identifier) = Just identifier
 
+alterObjWithCall::[(String, VariableType)] -> [String] -> String -> VariableType -> [(String, VariableType)]
+alterObjWithCall obj [] s v         = modifyInObject obj s v
+alterObjWithCall obj (c:cs) s v     = let nextChild = getVariableInObject c obj in
+                                      case nextChild of
+                                           Nothing      -> error ("The object has no attribute called " ++ c)
+                                           Just nextObj -> modifyInObject obj c (ObjectT (alterObjWithCall (expectObject nextObj) cs s v))
 
 -- -------------- MAIN EVALUATOR -------------------------------
 eval :: Stmt -> MState ProgramState ()

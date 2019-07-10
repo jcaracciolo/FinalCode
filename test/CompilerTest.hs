@@ -9,7 +9,7 @@ import Control.Monad.State.Lazy
 import TokenParser
 import LanguageDef
 import Text.ParserCombinators.Parsec
-
+import Control.Exception
 
 compilerTests = TestList [TestLabel "test1" test1, TestLabel "test2" test2]
 
@@ -21,11 +21,17 @@ test1 = TestCase (
             )
 
 test2 = TestCase (
-         do code <- readFile "test.js"
-            case parse (whiteSpace >> program) "" code of
-                 Left e  -> print e -- Aca hay que fallar
-                 Right r -> do
-                            (_, finalState) <- runStateT (eval r) [[]]
-                            assertBool "SIZE" ((length (head finalState)) > 0)
+         do
+            code <- readFile "test.js"
+            catch (
+
+                case parse (whiteSpace >> program) "" code of
+                     Left e  -> assertBool "" False
+                     Right r -> do
+                                (_, finalState) <- runStateT (eval r) [[]]
+                                assertBool "Exception was not thrown" False
+                  ) assertError
         )
 
+assertError::SomeException -> Assertion
+assertError _ = assertBool "Exception was thrown" True

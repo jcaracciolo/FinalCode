@@ -10,6 +10,7 @@ modifyVar,
 getVar,
 hasReturned,
 modifyInObject,
+getVariableInObject,
 ) where
 
 import DataTypes
@@ -81,6 +82,11 @@ getVar name = do
 modifyInObject:: [(String, VariableType)] -> String -> VariableType -> [(String, VariableType)]
 modifyInObject [] name value= [(name, value)]
 modifyInObject (s:ss) name value = if fst s== name then (name, value):ss else s:(modifyInObject ss name value)
+
+getVariableInObject::String -> [(String, VariableType)]-> Maybe VariableType
+getVariableInObject name [] = Nothing
+getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then Just ovalue else getVariableInObject name ss >>= Just
+
 
 expectInt:: VariableType -> Integer
 expectInt (IntT i) = i
