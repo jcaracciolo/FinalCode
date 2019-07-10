@@ -1,5 +1,5 @@
 module TokenParser(
-program
+program,objCall
 ) where
 
 import Control.Monad
@@ -10,6 +10,7 @@ import Text.ParserCombinators.Parsec.Expr
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as Token
 import LanguageDef
+import NoSpacesParsec
 import DataTypes
 
 
@@ -25,7 +26,7 @@ quotedString = do
 -- A program is a sequence of statements
 program :: Parser Stmt
 program = do
-            stmts <- many statement
+            stmts <- many1 statement
             return $ Seq stmts
 
 -- Possible statements (If, While, Assign, Print)
@@ -33,6 +34,7 @@ statement :: Parser Stmt
 statement =  (ifStmt
            <|> whileStmt
            <|> try callFunctionStmt
+           <|> try objCallStmt
            <|> assignLet
            <|> assignVar
            <|> changeVar
@@ -139,69 +141,117 @@ whileStmt =
 
 -- Assign Statement
 
-assignStmtGeneric :: Maybe String -> Parser a -> (String -> a -> Stmt) -> Parser Stmt
-assignStmtGeneric word parser mapper = case word of Nothing -> assignment
-                                                    Just w ->  reserved w >> assignment
+assignStmtGeneric :: Maybe String -> (String -> AssignableE -> Stmt) -> Parser Stmt
+assignStmtGeneric word mapper = case word of Nothing -> assignment
+                                             Just w ->  reserved w >> assignment
                                             where assignment = do
                                                                 var  <- identifier
                                                                 reservedOp "="
-                                                                expr <- parser
+                                                                expr <- assignableParser
                                                                 return $ mapper var expr
 
-returnStmtGeneric :: Parser a -> (a -> AssignableE) -> Parser Stmt
-returnStmtGeneric parser mapper = do
-                                    reserved "return"
-                                    expr <- parser
-                                    return $ Return (mapper expr)
+returnStmt ::Parser Stmt
+returnStmt = do
+          reserved "return"
+          expr <- assignableParser
+          return $ Return expr
 
-assignLet = try assignLetA
-        <|> try assignLetB
-        <|> try assignLetFC
-        <|> try assignLetFD
-        <|> try assignLetI
-
-assignVar = try assignVarA
-        <|> try assignVarB
-        <|> try assignVarFC
-        <|> try assignVarFD
-        <|> try assignVarI
-
-changeVar = try changeFC
-        <|> try changeA
-        <|> try changeB
-        <|> try changeFD
-        <|> try changeI
-
-returnStmt = returnStmtA
-         <|> returnStmtB
-         <|> returnStmtFC
-         <|> returnStmtFD
-         <|> returnStmtI
+assignLet = assignStmtGeneric (Just "let") AssignLet
+assignVar = assignStmtGeneric (Just "var") AssignVar
+changeVar = assignStmtGeneric Nothing ChangeVal
 
 
-assignLetA  = assignStmtGeneric (Just "let") aExpression     (flip (flip AssignLet . ValueE . AlgebraicE))
-assignLetB  = assignStmtGeneric (Just "let") bExpression     (flip (flip AssignLet . ValueE . BooleanE))
-assignLetI  = assignStmtGeneric (Just "let") identifier      (flip (flip AssignLet . ValueE . IdentifierE))
-assignLetFC = assignStmtGeneric (Just "let") fCallExpression (flip (flip AssignLet . ValueE . FunctionCallE))
-assignLetFD = assignStmtGeneric (Just "let") fDeclExpression (flip (flip AssignLet . FDeclare))
+assignableParser:: Parser AssignableE
+assignableParser = do
+                    try assignObjD
+                    <|> try assignObjC
+                    <|> try assignA
+                    <|> try assignB
+                    <|> try assignFC
+                    <|> try assignFD
+                    <|> assignI
 
-assignVarA  = assignStmtGeneric (Just "var") aExpression     (flip (flip AssignVar . ValueE . AlgebraicE))
-assignVarB  = assignStmtGeneric (Just "var") bExpression     (flip (flip AssignVar . ValueE . BooleanE))
-assignVarI  = assignStmtGeneric (Just "var") identifier      (flip (flip AssignVar . ValueE . IdentifierE))
-assignVarFC = assignStmtGeneric (Just "var") fCallExpression (flip (flip AssignVar . ValueE . FunctionCallE))
-assignVarFD = assignStmtGeneric (Just "var") fDeclExpression (flip (flip AssignVar . FDeclare))
+makeAssignable::Parser a -> (a -> AssignableE) -> Parser AssignableE
+makeAssignable parser mapper = do
+                               expr <- parser
+                               return $ mapper expr
 
-changeA  = assignStmtGeneric Nothing aExpression     (flip (flip ChangeVal . ValueE . AlgebraicE))
-changeB  = assignStmtGeneric Nothing bExpression     (flip (flip ChangeVal . ValueE . BooleanE))
-changeI  = assignStmtGeneric Nothing identifier      (flip (flip ChangeVal . ValueE . IdentifierE))
-changeFC = assignStmtGeneric Nothing fCallExpression (flip (flip ChangeVal . ValueE . FunctionCallE))
-changeFD = assignStmtGeneric Nothing fDeclExpression (flip (flip ChangeVal . FDeclare))
-
-returnStmtA  = returnStmtGeneric aExpression     (ValueE . AlgebraicE)
-returnStmtB  = returnStmtGeneric bExpression     (ValueE . BooleanE)
-returnStmtI  = returnStmtGeneric identifier      (ValueE . IdentifierE)
-returnStmtFC = returnStmtGeneric fCallExpression (ValueE . FunctionCallE)
-returnStmtFD = returnStmtGeneric fDeclExpression (FDeclare)
+assignA  = makeAssignable aExpression     (ValueE . AlgebraicE)
+assignB  = makeAssignable bExpression     (ValueE . BooleanE)
+assignI  = makeAssignable identifier      (ValueE . IdentifierE)
+assignFC = makeAssignable fCallExpression (ValueE . FunctionCallE)
+assignFD = makeAssignable fDeclExpression (FDeclare)
+assignObjD = makeAssignable objDec     (ODec)
+assignObjC = makeAssignable objCall     (parserToObj >>> (ValueE . ObjCallE))
 
 
+---- Object Call
+
+data ObjectParser = ObjectParser String ObjectParser | ObjectFParser FCExpr ObjectParser | ObjectFEnd FCExpr | ObjectIEnd String
+
+objCallStmt::Parser Stmt
+objCallStmt = do
+                call <- objCall
+                return $ OCall (parserToObj call)
+
+parserToObj::ObjectParser -> ObjCall
+parserToObj (ObjectParser  s (ObjectFEnd f))    = ObjFCall (ObjIBase s) f
+parserToObj (ObjectParser  s (ObjectIEnd i))    = ObjCall  (ObjIBase s) i
+parserToObj (ObjectParser  s o)                 = preappendObjI (parserToObj o) s
+parserToObj (ObjectFParser fc (ObjectFEnd f))    = ObjFCall (ObjFBase fc) f
+parserToObj (ObjectFParser fc (ObjectIEnd i))     = ObjCall  (ObjFBase fc) i
+parserToObj (ObjectFParser fc o)                  = preappendObjF (parserToObj o) fc
+
+preappendObjI::ObjCall -> String -> ObjCall
+preappendObjI (ObjFBase fcall)   s  = ObjFCall (ObjIBase s) fcall
+preappendObjI (ObjIBase ident)   s  = ObjCall  (ObjIBase s) ident
+preappendObjI (ObjCall o ident ) s  = ObjCall  (preappendObjI o s) ident
+preappendObjI (ObjFCall o fcall) s  = ObjFCall (preappendObjI o s) fcall
+
+preappendObjF::ObjCall -> FCExpr -> ObjCall
+preappendObjF (ObjFBase fcall)   f  = ObjFCall (ObjFBase f) fcall
+preappendObjF (ObjIBase ident)   f  = ObjCall  (ObjFBase f) ident
+preappendObjF (ObjCall o ident)  f  = ObjCall  (preappendObjF o f) ident
+preappendObjF (ObjFCall o fcall) f  = ObjFCall (preappendObjF o f) fcall
+
+objCall::Parser ObjectParser
+objCall =  try fToObjectCall
+            <|> iToIbjectCall
+
+objCallAndBase = try fToObjectCall
+                 <|> try iToIbjectCall
+                 <|> try (noSpacesFCall >>= (return . ObjectFEnd))
+                 <|> (noSpacesIdentifier >>= (return . ObjectIEnd))
+
+noSpacesFCall:: Parser FCExpr
+noSpacesFCall =
+              do
+              name <- noSpacesIdentifier
+              parameters <- noSpacesParens parameterGenericExpr
+              return $ FCExpr name parameters
+
+fToObjectCall  =
+              do
+              f <- noSpacesFCall
+              noSpacesReservedOp "."
+              o <- objCallAndBase
+              whiteSpace
+              return $ ObjectFParser f o
+
+iToIbjectCall =
+              do
+              i <- noSpacesIdentifier
+              noSpacesReservedOp "."
+              o <- objCallAndBase
+              whiteSpace
+              return $ ObjectParser i o
+
+---- Object Def
+objDec::Parser ObjDec
+objDec = do braces (commaSep objAssigns) >>= (return . ObjDec)
+         where objAssigns =  do
+                            name <- noSpacesIdentifier
+                            reservedOp ":"
+                            asign <- assignableParser
+                            return $ (name, asign)
 

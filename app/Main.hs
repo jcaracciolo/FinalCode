@@ -3,4 +3,4 @@ import Compiler
 import PrettyPrinter
 import Interpreter
 
-main = mainInterpreter
+main = mainCompile
