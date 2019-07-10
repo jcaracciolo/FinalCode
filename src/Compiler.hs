@@ -1,6 +1,7 @@
 module Compiler(
 mainCompile,
-eval
+eval,
+evalB
 )where
 
 import DataTypes
@@ -142,8 +143,6 @@ eval (ChangeVal name (ValueE (FunctionCallE fcexpr)))  = evalAssignF modifyVar n
 
 eval (Return expr)                                     = eval (ChangeVal "return" expr)
 
-
-
 eval (If bexpr s1 s2)                          = do cond <- evalB bexpr
                                                     state <- get
                                                     put ([]:state)
@@ -153,10 +152,12 @@ eval (If bexpr s1 s2)                          = do cond <- evalB bexpr
                                                     return ()
 
 eval (While bexpr stmt)                        = eval(If bexpr (Seq [stmt, (While bexpr stmt)]) Skip)
+
 eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
 eval (Print s) = liftIO (putStrLn s) >> return ()
 eval (a) = liftIO (print a) >> (return ())
+
 
 mainCompile = do
     [filename] <- getArgs
