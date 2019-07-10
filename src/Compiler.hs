@@ -128,16 +128,21 @@ evalAssignable(ODec (ObjDec vars)) = do
 
 evalChange::ValueHolder -> AssignableE -> MState ProgramState ()
 evalChange (IdentVH name) assignable = evalAssign modifyVar name assignable
--- evalChange (ObjectVH (ObjCall o name)) assignable = do
---                                         obj <- evalObjCall o
---                                         value <- evalAssignable assignable
---                                         case getOriginalObjectVariable o of
---                                                 Nothing -> return ()
---                                                 Just var -> let newObject = modifyInObject (expectObject obj) name value in
---                                                     do
---                                                     modify(modifyVar var (ObjectT newObject))
---                                                     return ()
-
+evalChange (ObjectVH (ObjCall o name)) assignable = do
+                                        obj <- evalObjCall o
+                                        value <- evalAssignable assignable
+                                        let vals = do {
+                                              varName <- getOriginalObjectVariable o
+                                            ; strings <- getCallObjStrings o
+                                            ; return (varName, strings)
+                                           }
+                                        case vals of Nothing -> return()
+                                                     Just (varName, strings) ->
+                                                        do
+                                                        originalObj <- getVar varName
+                                                        let newObject = alterObjWithCall (expectObject originalObj) strings name value
+                                                                in modify (modifyVar varName (ObjectT newObject))
+                                                        return ()
 
 
 -- -------------- OBJECT EVALUATOR -----------------------------
@@ -166,12 +171,17 @@ evalObjCall(ObjIBase identifier)     = do
                                        guard (length (expectObject var) >= 0)
                                        return var
 
-getCallObj::ObjCall -> Maybe [String]
-getCallObj (ObjCall o s) = getCallObj o >>= ((s:) >>> Just)
-getCallObj (ObjIBase _) = Just []
-getCallObj (ObjFCall _ _) = Nothing
-getCallObj (ObjFBase _) = Nothing
+getCallObjStrings::ObjCall -> Maybe [String]
+getCallObjStrings (ObjCall o s) = getCallObjStrings o >>= (\r -> Just (r ++ [s]))
+getCallObjStrings (ObjIBase _) = Just []
+getCallObjStrings (ObjFCall _ _) = Nothing
+getCallObjStrings (ObjFBase _) = Nothing
 
+getOriginalObjectVariable::ObjCall -> Maybe String
+getOriginalObjectVariable (ObjCall o _) = getOriginalObjectVariable o
+getOriginalObjectVariable (ObjIBase s) = Just s
+getOriginalObjectVariable (ObjFCall _ _) = Nothing
+getOriginalObjectVariable (ObjFBase _) = Nothing
 
 alterObjWithCall::[(String, VariableType)] -> [String] -> String -> VariableType -> [(String, VariableType)]
 alterObjWithCall obj [] s v         = modifyInObject obj s v
