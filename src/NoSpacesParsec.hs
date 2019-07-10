@@ -13,6 +13,7 @@ import LanguageDef
 import Data.List
 import Data.Char
 
+noSpacesReserved::String -> Parser String
 noSpacesReserved name = string name
 
 ident
@@ -121,4 +122,5 @@ inCommentSingle
     where
       startEnd   = nub (commentEnd languageDef ++ commentStart languageDef)
 
+noSpacesParens::Parser a -> Parser a
 noSpacesParens p = between (string "(") (string ")") p

@@ -9,6 +9,10 @@ import Control.Monad.State.Lazy
 
 compilerTests = TestList [TestLabel "test1" test1]
 
-asd = runStateT (BConst True) [[]]
+asd = runStateT (evalB(BConst True)) [[]]
 
-test1 = TestCase (assertEqual "test1" asd (evalB(BConst True)))
+test1 = TestCase (
+            do b <- runStateT (evalB(BConst True)) [[]]
+               assertBool "BConst evaluates to True" (fst b)
+            )
+
