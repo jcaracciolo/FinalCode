@@ -19,7 +19,7 @@ import LanguageDef
 import TokenParser
 import ScopeEvaluator
 
--- -------------- ARITMETIC EVALUATOR -------------------------------
+-- -------------- ARITHMETIC EVALUATOR -------------------------------
 
 evalABin::AExpr -> AExpr -> (Integer -> Integer -> a) -> MState ProgramState a
 evalABin aexpr1 aexpr2 op = do
