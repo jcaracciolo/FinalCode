@@ -145,12 +145,16 @@ evalObjCall::ObjCall -> MState ProgramState VariableType
 evalObjCall(ObjCall o s)    = do
                               castedObj <- (evalObjCall o >>= return . expectObject)
                               guard (length castedObj >= 0)
-                              return (getVariableInObject s castedObj)
+                              case (getVariableInObject s castedObj) of
+                                    Nothing -> error ("The object has no attribute called " ++ s)
+                                    Just v -> return v
 
 evalObjCall(ObjFCall o (FCExpr fName params))   = do
                                                   castedObj <- (evalObjCall o >>= return . expectObject)
                                                   guard (length castedObj >= 0)
-                                                  evalF (expectFn (getVariableInObject fName castedObj)) params
+                                                  case (getVariableInObject fName castedObj) of
+                                                          Nothing -> error ("The object has no attribute called " ++ fName)
+                                                          Just f -> evalF (expectFn f) params
 
 evalObjCall(ObjFBase fcexpr)         = do
                                        var <- evalFCall fcexpr
@@ -162,9 +166,9 @@ evalObjCall(ObjIBase identifier)     = do
                                        guard (length (expectObject var) >= 0)
                                        return var
 
-getVariableInObject::String -> [(String, VariableType)]-> VariableType
-getVariableInObject name [] = error ("The object has no attribute called " ++ name)
-getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then ovalue else getVariableInObject name ss
+getVariableInObject::String -> [(String, VariableType)]-> Maybe VariableType
+getVariableInObject name [] = Nothing
+getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then Just ovalue else getVariableInObject name ss >>= Just
 
 getOriginalObjectVariable::ObjCall -> Maybe String
 getOriginalObjectVariable(ObjCall o _)    = getOriginalObjectVariable o
