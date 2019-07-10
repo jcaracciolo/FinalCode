@@ -34,10 +34,10 @@ statement :: Parser Stmt
 statement =  (ifStmt
            <|> whileStmt
            <|> try callFunctionStmt
+           <|> try changeStmt
            <|> try objCallStmt
            <|> assignLet
            <|> assignVar
-           <|> changeVar
            <|> returnStmt
            <|> printStmt
            <|> parens statement) >>= (\stmt -> do
@@ -141,14 +141,13 @@ whileStmt =
 
 -- Assign Statement
 
-assignStmtGeneric :: Maybe String -> (String -> AssignableE -> Stmt) -> Parser Stmt
-assignStmtGeneric word mapper = case word of Nothing -> assignment
-                                             Just w ->  reserved w >> assignment
-                                            where assignment = do
-                                                                var  <- identifier
-                                                                reservedOp "="
-                                                                expr <- assignableParser
-                                                                return $ mapper var expr
+assignStmtGeneric :: String -> (String -> AssignableE -> Stmt) -> Parser Stmt
+assignStmtGeneric word mapper =  do
+                            reserved word
+                            var  <- identifier
+                            reservedOp "="
+                            expr <- assignableParser
+                            return $ mapper var expr
 
 returnStmt ::Parser Stmt
 returnStmt = do
@@ -156,9 +155,19 @@ returnStmt = do
           expr <- assignableParser
           return $ Return expr
 
-assignLet = assignStmtGeneric (Just "let") AssignLet
-assignVar = assignStmtGeneric (Just "var") AssignVar
-changeVar = assignStmtGeneric Nothing ChangeVal
+assignLet = assignStmtGeneric "let" AssignLet
+assignVar = assignStmtGeneric "var" AssignVar
+
+changeStmt ::Parser Stmt
+changeStmt =  do
+                var  <- valueHolderParser
+                reservedOp "="
+                expr <- assignableParser
+                return $ ChangeVal var expr
+
+valueHolderParser::Parser ValueHolder
+valueHolderParser = try (objCallNoEndF >>= return . parserToObj >>= (return . ObjectVH))
+                    <|> (identifier >>= (return . IdentVH))
 
 
 assignableParser:: Parser AssignableE
@@ -214,12 +223,13 @@ preappendObjF (ObjIBase ident)   f  = ObjCall  (ObjFBase f) ident
 preappendObjF (ObjCall o ident)  f  = ObjCall  (preappendObjF o f) ident
 preappendObjF (ObjFCall o fcall) f  = ObjFCall (preappendObjF o f) fcall
 
-objCall::Parser ObjectParser
-objCall =  try fToObjectCall
-            <|> iToIbjectCall
 
-objCallAndBase = try fToObjectCall
-                 <|> try iToIbjectCall
+objCall::Parser ObjectParser
+objCall =  try (fToObjectCall objCallAndBase)
+            <|> (iToObjectCall objCallAndBase)
+
+objCallAndBase = try (fToObjectCall objCallAndBase)
+                 <|> try (iToObjectCall objCallAndBase)
                  <|> try (noSpacesFCall >>= (return . ObjectFEnd))
                  <|> (noSpacesIdentifier >>= (return . ObjectIEnd))
 
@@ -230,7 +240,8 @@ noSpacesFCall =
               parameters <- noSpacesParens parameterGenericExpr
               return $ FCExpr name parameters
 
-fToObjectCall  =
+fToObjectCall::Parser ObjectParser -> Parser ObjectParser
+fToObjectCall callAndBase =
               do
               f <- noSpacesFCall
               noSpacesReservedOp "."
@@ -238,13 +249,25 @@ fToObjectCall  =
               whiteSpace
               return $ ObjectFParser f o
 
-iToIbjectCall =
+iToObjectCall::Parser ObjectParser -> Parser ObjectParser
+iToObjectCall callAndBase =
               do
               i <- noSpacesIdentifier
               noSpacesReservedOp "."
-              o <- objCallAndBase
+              o <- callAndBase
               whiteSpace
               return $ ObjectParser i o
+
+
+
+objCallNoEndF::Parser ObjectParser
+objCallNoEndF =  try (fToObjectCall objCallAndBaseNoEndF)
+            <|> (iToObjectCall objCallAndBaseNoEndF)
+
+
+objCallAndBaseNoEndF = try (fToObjectCall objCallAndBaseNoEndF)
+                 <|> try (iToObjectCall objCallAndBaseNoEndF)
+                 <|> (noSpacesIdentifier >>= (return . ObjectIEnd))
 
 ---- Object Def
 objDec::Parser ObjDec

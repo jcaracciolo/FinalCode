@@ -129,7 +129,7 @@ prettyPrint (Seq []) = return ()
 prettyPrint (Seq (s:ss)) = prettyPrint (s) >> prettyPrint (Seq ss)
 prettyPrint (AssignLet name assignable)   = prettyPrintAssign "let " name assignable
 prettyPrint (AssignVar name assignable)   = prettyPrintAssign "var " name assignable
-prettyPrint (ChangeVal name assignable)   = prettyPrintAssign "" name assignable
+-- prettyPrint (ChangeVal name assignable)   = prettyPrintAssign "" name assignable
 prettyPrint (Return assignable)           = do newLine
                                                mAppend "return "
                                                prettyPrintAssignable assignable

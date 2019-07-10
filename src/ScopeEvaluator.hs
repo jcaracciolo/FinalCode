@@ -9,6 +9,7 @@ addLet,
 modifyVar,
 getVar,
 hasReturned,
+modifyInObject,
 ) where
 
 import DataTypes
@@ -76,6 +77,10 @@ getVar::String -> MState ProgramState VariableType
 getVar name = do
               state <- get
               return $ evalVar state name
+
+modifyInObject:: [(String, VariableType)] -> String -> VariableType -> [(String, VariableType)]
+modifyInObject [] name value= [(name, value)]
+modifyInObject (s:ss) name value = if fst s== name then (name, value):ss else s:(modifyInObject ss name value)
 
 expectInt:: VariableType -> Integer
 expectInt (IntT i) = i

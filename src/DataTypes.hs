@@ -9,6 +9,7 @@ AExpr(..),
 Stmt(..),
 GenericExpr(..),
 AssignableE(..),
+ValueHolder(..),
 FDExpr(..),
 FCExpr(..),
 
@@ -39,7 +40,7 @@ data ObjDec  = ObjDec [(String, AssignableE)] deriving(Show)
 data Stmt =    Seq [Stmt]
                | AssignLet String AssignableE
                | AssignVar String AssignableE
-               | ChangeVal String AssignableE
+               | ChangeVal ValueHolder AssignableE
                | Return AssignableE
                | FCall FCExpr
                | If BExpr Stmt Stmt
@@ -48,6 +49,8 @@ data Stmt =    Seq [Stmt]
                | Skip
                | OCall ObjCall
                 deriving (Show)
+
+data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Show)
 
 data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec deriving (Show)
 data GenericExpr    = AlgebraicE AExpr | BooleanE BExpr | IdentifierE String | FunctionCallE FCExpr | ObjCallE ObjCall deriving (Show)

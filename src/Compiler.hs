@@ -126,19 +126,51 @@ evalAssignable(ODec (ObjDec vars)) = do
                                                 do val <- evalAssignable a
                                                    return (s, val)
 
+evalChange::ValueHolder -> AssignableE -> MState ProgramState ()
+evalChange (IdentVH name) assignable = evalAssign modifyVar name assignable
+evalChange (ObjectVH (ObjCall o name)) assignable = do
+                                        obj <- evalObjCall o
+                                        value <- evalAssignable assignable
+                                        case getOriginalObjectVariable o of
+                                                Nothing -> return ()
+                                                Just var -> let newObject = modifyInObject (expectObject obj) name value in
+                                                    do
+                                                    modify(modifyVar var (ObjectT newObject))
+                                                    return ()
+
+
+
 -- -------------- OBJECT EVALUATOR -----------------------------
 evalObjCall::ObjCall -> MState ProgramState VariableType
-evalObjCall(ObjCall o s)    = evalObjCall o >>= return . expectObject >>= return . (getVariableInObject s)
-evalObjCall(ObjFCall o (FCExpr fName params))   = do
-                                obj <- evalObjCall o
-                                evalF (expectFn (getVariableInObject fName (expectObject obj))) params
+evalObjCall(ObjCall o s)    = do
+                              castedObj <- (evalObjCall o >>= return . expectObject)
+                              guard (length castedObj >= 0)
+                              return (getVariableInObject s castedObj)
 
-evalObjCall(ObjFBase fcexpr)         = evalFCall fcexpr
-evalObjCall(ObjIBase identifier)     = getVar identifier
+evalObjCall(ObjFCall o (FCExpr fName params))   = do
+                                                  castedObj <- (evalObjCall o >>= return . expectObject)
+                                                  guard (length castedObj >= 0)
+                                                  evalF (expectFn (getVariableInObject fName castedObj)) params
+
+evalObjCall(ObjFBase fcexpr)         = do
+                                       var <- evalFCall fcexpr
+                                       guard (length (expectObject var) >= 0)
+                                       return var
+
+evalObjCall(ObjIBase identifier)     = do
+                                       var <- getVar identifier
+                                       guard (length (expectObject var) >= 0)
+                                       return var
 
 getVariableInObject::String -> [(String, VariableType)]-> VariableType
 getVariableInObject name [] = error ("The object has no attribute called " ++ name)
 getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then ovalue else getVariableInObject name ss
+
+getOriginalObjectVariable::ObjCall -> Maybe String
+getOriginalObjectVariable(ObjCall o _)    = getOriginalObjectVariable o
+getOriginalObjectVariable(ObjFCall o _)   = getOriginalObjectVariable o
+getOriginalObjectVariable(ObjFBase _)          = Nothing
+getOriginalObjectVariable(ObjIBase identifier) = Just identifier
 
 
 -- -------------- MAIN EVALUATOR -------------------------------
@@ -149,10 +181,10 @@ eval (Seq (s:ss)) = do
                     modifiedContext <- get
                     if hasReturned modifiedContext then return () else eval (Seq ss)
 
-eval (AssignLet name assignable)              = evalAssign  addLet name assignable
+eval (AssignLet name assignable)             = evalAssign  addLet name assignable
 eval (AssignVar name assignable)             = evalAssign  addVar name assignable
-eval (ChangeVal name assignable)              = evalAssign  modifyVar name assignable
-eval (Return expr)                            = eval (ChangeVal "return" expr)
+eval (ChangeVal vh   assignable)             = evalChange  vh assignable
+eval (Return expr)                           = eval (ChangeVal (IdentVH "return") expr)
 
 eval (OCall objCall)                          = evalObjCall objCall >> return ()
 
