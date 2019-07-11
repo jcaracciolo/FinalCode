@@ -2,6 +2,7 @@ module Interpreter(
 mainInterpreter
 )where
 
+import System.IO
 import Compiler
 import DataTypes
 import Control.Monad.State.Lazy
@@ -10,36 +11,47 @@ import TokenParser
 import Text.Parsec.Error
 import Text.ParserCombinators.Parsec
 import Data.List
+import qualified Control.Exception as Ex
 
 
 
-data InterpreterResult = IError ParseError | IExpectedMore String | ISuccess
+data InterpreterResult = IError ParseError | IException Ex.SomeException | IExpectedMore String | ISuccess VariableType
+
+evalInterpreter::Stmt -> MState ProgramState VariableType
+evalInterpreter (Seq ((OCall objCall):[]))                          = evalObjCall objCall
+evalInterpreter (Seq ((FCall fcexpr):[]))                           = evalFCall fcexpr
+evalInterpreter (a)                                      = eval a >> (return Undefined)
+
 
 tryInterpret::String -> MState ProgramState InterpreterResult
-tryInterpret append = do
-                      line <- (liftIO getLine)
-                      case parse (whiteSpace >> program) "" (append ++ line) of
-                          Left e  -> do
-                                     if (isInfixOf ("unexpected end of input") (show e))
-                                     then return $ IExpectedMore (append ++ line)
-                                     else return $ IError e
-                          Right r -> do
-                                     eval r
-                                     return ISuccess
-                                     -- TODO there is an issue with var return = 5
+tryInterpret append =
+                        do
+                        line <- (liftIO getLine)
+                        case parse (whiteSpace >> program) "" (append ++ line) of
+                            Left e  -> do
+                                       if (isInfixOf ("unexpected end of input") (show e))
+                                       then return $ IExpectedMore (append ++ line)
+                                       else return $ IError e
+                            Right r -> do
+                                       result <- evalInterpreter r
+                                       return (ISuccess result)
 
+                                       -- TODO there is an issue with var return = 5
 
+returnExc::Ex.SomeException -> MState ProgramState InterpreterResult
+returnExc e = return $ IException e
 
 mainInterpreter = do
            putStrLn "Welcome to Final Code Interpreter"
+           putStr ">> "
+           hFlush stdout
            runStateT (loopInterpreter "") [[]]
            print "Bye"
 
 loopInterpreter:: String -> MState ProgramState InterpreterResult
 loopInterpreter s     = do
-                        liftIO (putStr ">>")
                         result <- tryInterpret s
                         case result of
-                             IError e        -> liftIO (print e) >> loopInterpreter ""
+                             IError e        -> liftIO (print e) >> liftIO (putStr ">>") >> liftIO (hFlush stdout) >> loopInterpreter ""
                              IExpectedMore s -> loopInterpreter s
-                             ISuccess        -> loopInterpreter ""
+                             ISuccess a      -> liftIO (print a) >> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""
