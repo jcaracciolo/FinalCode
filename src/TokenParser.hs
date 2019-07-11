@@ -13,16 +13,6 @@ import LanguageDef
 import NoSpacesParsec
 import DataTypes
 
-
-quotedString = do
-  string <- between (char '"') (char '"') (many quotedStringChar)
-  return string
-  where
-    quotedStringChar = escapedChar <|> normalChar
-    escapedChar = (char '\\') *> (oneOf ['\\', '"'])
-    normalChar = noneOf "\""
-
-
 -- A program is a sequence of statements
 program :: Parser Stmt
 program = do
@@ -47,7 +37,7 @@ statement =  (ifStmt
 
 
 -- Arithmetic Expresion
-aTerm =  liftM IntConst integer
+aTerm =  liftM NumericConst number
      <|> try (liftM AFCall fCallExpression)
      <|> liftM VarA identifier
      <|> parens aExpression
@@ -106,16 +96,9 @@ genericExpression:: Parser GenericExpr
 genericExpression =
                     try (fCallExpression >>= (FunctionCallE >>> return))
                     <|> try (identifier >>= (IdentifierE >>> return))
+                    <|> (quotedString  >>= (StringE >>> return))
                     <|> (aExpression  >>= (AlgebraicE >>> return))
                     <|> (bExpression >>= (BooleanE >>> return))
-
--- Print Statement
-printStmt :: Parser Stmt
-printStmt = do
-    reserved "print"
-    content <- parens quotedString
-    return $ Print content
-
 
 -- If Statement
 ifStmt :: Parser Stmt
@@ -174,11 +157,12 @@ assignableParser:: Parser AssignableE
 assignableParser = do
                     try assignObjD
                     <|> try assignObjC
-                    <|> try assignA
-                    <|> try assignB
-                    <|> try assignFC
                     <|> try assignFD
-                    <|> assignI
+                    <|> try assignStr
+                    <|> try assignFC
+                    <|> try assignI
+                    <|> try assignB
+                    <|> assignA
 
 makeAssignable::Parser a -> (a -> AssignableE) -> Parser AssignableE
 makeAssignable parser mapper = do
@@ -189,6 +173,7 @@ assignA  = makeAssignable aExpression     (ValueE . AlgebraicE)
 assignB  = makeAssignable bExpression     (ValueE . BooleanE)
 assignI  = makeAssignable identifier      (ValueE . IdentifierE)
 assignFC = makeAssignable fCallExpression (ValueE . FunctionCallE)
+assignStr = makeAssignable quotedString (ValueE . StringE)
 assignFD = makeAssignable fDeclExpression (FDeclare)
 assignObjD = makeAssignable objDec     (ODec)
 assignObjC = makeAssignable objCall     (parserToObj >>> (ValueE . ObjCallE))
@@ -277,4 +262,23 @@ objDec = do braces (commaSep objAssigns) >>= (return . ObjDec)
                             reservedOp ":"
                             asign <- assignableParser
                             return $ (name, asign)
+
+--- String Parser
+
+printStmt :: Parser Stmt
+printStmt = do
+    reserved "print"
+    content <- parens assignableParser
+    return $ Print content
+
+
+quotedString::Parser String
+quotedString = do
+  string <- between (char '"') (char '"') (many quotedStringChar)
+  return string
+  where
+    quotedStringChar = escapedChar <|> normalChar
+    escapedChar = (char '\\') *> (oneOf ['\\', '"'])
+    normalChar = noneOf "\""
+
 

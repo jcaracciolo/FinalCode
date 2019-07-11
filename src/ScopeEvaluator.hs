@@ -1,5 +1,5 @@
 module ScopeEvaluator(
-expectInt,
+expectNumeric,
 expectBool,
 expectStr,
 expectFn,
@@ -10,6 +10,7 @@ modifyVar,
 getVar,
 hasReturned,
 modifyInObject,
+getVariableInObject,
 evalVar,
 ) where
 
@@ -17,6 +18,7 @@ import DataTypes
 import Control.Arrow
 import Control.Exception
 import Control.Monad.State.Lazy
+import PrettyPrinter
 
 isDefined::String -> ScopeVariables -> Bool
 isDefined name  []      = False
@@ -83,9 +85,14 @@ modifyInObject:: [(String, VariableType)] -> String -> VariableType -> [(String,
 modifyInObject [] name value= [(name, value)]
 modifyInObject (s:ss) name value = if fst s== name then (name, value):ss else s:(modifyInObject ss name value)
 
-expectInt:: VariableType -> Integer
-expectInt (IntT i) = i
-expectInt t = error ("Expected Integer in but got " ++ (show t))
+getVariableInObject::String -> [(String, VariableType)]-> Maybe VariableType
+getVariableInObject name [] = Nothing
+getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then Just ovalue else getVariableInObject name ss >>= Just
+
+
+expectNumeric:: VariableType -> Double
+expectNumeric (NumericT i) = i
+expectNumeric t = error ("Expected Integer in but got " ++ (show t))
 
 expectBool:: VariableType -> Bool
 expectBool (BoolT b) = b
@@ -108,4 +115,3 @@ hasReturned [] = False
 hasReturned (s:ss) = case evalInScope s "return" of Nothing -> hasReturned ss
                                                     Just Undefined -> False
                                                     Just _ -> True
-

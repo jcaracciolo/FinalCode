@@ -18,25 +18,26 @@ import Text.ParserCombinators.Parsec.Language
 import DataTypes
 import LanguageDef
 import TokenParser
+import PrettyPrinter
 import ScopeEvaluator
 
 -- -------------- ARITHMETIC EVALUATOR -------------------------------
 
-evalABin::AExpr -> AExpr -> (Integer -> Integer -> a) -> MState ProgramState a
+evalABin::AExpr -> AExpr -> (Double -> Double -> a) -> MState ProgramState a
 evalABin aexpr1 aexpr2 op = do
                              i1 <- evalA aexpr1
                              i2 <- evalA aexpr2
                              return $ op i1 i2
 
-evalA :: AExpr -> MState ProgramState Integer
-evalA (IntConst i) = return i
+evalA :: AExpr -> MState ProgramState Double
+evalA (NumericConst i) = return i
 evalA (Neg aexpr)  = evalA aexpr >>= (\i-> return (-i))
 evalA (ABinary Add expr1 expr2)         = evalABin expr1 expr2 (+)
 evalA (ABinary Subtract expr1 expr2)    = evalABin expr1 expr2 (-)
 evalA (ABinary Multiply expr1 expr2)    = evalABin expr1 expr2 (*)
-evalA (ABinary Divide expr1 expr2)      = evalABin expr1 expr2 div
-evalA (VarA s)                          = getVar s >>= (expectInt >>> return)
-evalA (AFCall fcexpr)                   = evalFCall fcexpr >>= (expectInt >>> return)
+evalA (ABinary Divide expr1 expr2)      = evalABin expr1 expr2 (/)
+evalA (VarA s)                          = getVar s >>= (expectNumeric >>> return)
+evalA (AFCall fcexpr)                   = evalFCall fcexpr >>= (expectNumeric >>> return)
 
 
 -- -------------- BOOLEAN EVALUATOR -------------------------------
@@ -92,12 +93,18 @@ evalParamsInSequence ((s, g):otherParams) = do value <- evalG g
 
 -- -------------- GENERAL EXPRESSION EVALUATOR -------------------------------
 evalG::GenericExpr -> MState ProgramState VariableType
-evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (IntT >>> return)
+evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (NumericT >>> return)
+evalG (StringE str)                          = return (StrT str)
 evalG (BooleanE bexpr)                       = evalB bexpr >>= (BoolT >>> return)
 evalG (IdentifierE name)                     = getVar name >>= return
 evalG (FunctionCallE fcexpr)                 = evalFCall fcexpr >>= return
 evalG (ObjCallE obj)                         = evalObjCall obj >>= return
 
+
+toStrG::AssignableE -> MState ProgramState String
+toStrG a = do
+           var <- evalAssignable a
+           return (toString var)
 
 -- -------------- ASSIGNMENT EVALUATOR -------------------------------
 
@@ -131,13 +138,18 @@ evalChange (IdentVH name) assignable = evalAssign modifyVar name assignable
 evalChange (ObjectVH (ObjCall o name)) assignable = do
                                         obj <- evalObjCall o
                                         value <- evalAssignable assignable
-                                        case getOriginalObjectVariable o of
-                                                Nothing -> return ()
-                                                Just var -> let newObject = modifyInObject (expectObject obj) name value in
-                                                    do
-                                                    modify(modifyVar var (ObjectT newObject))
-                                                    return ()
-
+                                        let vals = do {
+                                              varName <- getOriginalObjectVariable o
+                                            ; strings <- getCallObjStrings o
+                                            ; return (varName, strings)
+                                           }
+                                        case vals of Nothing -> return()
+                                                     Just (varName, strings) ->
+                                                        do
+                                                        originalObj <- getVar varName
+                                                        let newObject = alterObjWithCall (expectObject originalObj) strings name value
+                                                                in modify (modifyVar varName (ObjectT newObject))
+                                                        return ()
 
 
 -- -------------- OBJECT EVALUATOR -----------------------------
@@ -166,16 +178,24 @@ evalObjCall(ObjIBase identifier)     = do
                                        guard (length (expectObject var) >= 0)
                                        return var
 
-getVariableInObject::String -> [(String, VariableType)]-> Maybe VariableType
-getVariableInObject name [] = Nothing
-getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then Just ovalue else getVariableInObject name ss >>= Just
+getCallObjStrings::ObjCall -> Maybe [String]
+getCallObjStrings (ObjCall o s) = getCallObjStrings o >>= (\r -> Just (r ++ [s]))
+getCallObjStrings (ObjIBase _) = Just []
+getCallObjStrings (ObjFCall _ _) = Nothing
+getCallObjStrings (ObjFBase _) = Nothing
 
 getOriginalObjectVariable::ObjCall -> Maybe String
-getOriginalObjectVariable(ObjCall o _)    = getOriginalObjectVariable o
-getOriginalObjectVariable(ObjFCall o _)   = getOriginalObjectVariable o
-getOriginalObjectVariable(ObjFBase _)          = Nothing
-getOriginalObjectVariable(ObjIBase identifier) = Just identifier
+getOriginalObjectVariable (ObjCall o _) = getOriginalObjectVariable o
+getOriginalObjectVariable (ObjIBase s) = Just s
+getOriginalObjectVariable (ObjFCall _ _) = Nothing
+getOriginalObjectVariable (ObjFBase _) = Nothing
 
+alterObjWithCall::[(String, VariableType)] -> [String] -> String -> VariableType -> [(String, VariableType)]
+alterObjWithCall obj [] s v         = modifyInObject obj s v
+alterObjWithCall obj (c:cs) s v     = let nextChild = getVariableInObject c obj in
+                                      case nextChild of
+                                           Nothing      -> error ("The object has no attribute called " ++ c)
+                                           Just nextObj -> modifyInObject obj c (ObjectT (alterObjWithCall (expectObject nextObj) cs s v))
 
 -- -------------- MAIN EVALUATOR -------------------------------
 eval :: Stmt -> MState ProgramState ()
@@ -204,7 +224,7 @@ eval (While bexpr stmt)                        = eval(If bexpr (Seq [stmt, (Whil
 
 eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
-eval (Print s) = liftIO (putStrLn s) >> return ()
+eval (Print sexpr)                             = toStrG sexpr >>= liftIO . putStrLn >> return ()
 eval (a) = liftIO (print a) >> (return ())
 
 

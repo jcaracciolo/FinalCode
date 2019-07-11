@@ -30,7 +30,7 @@ type MState s = StateT s IO
 type ProgramState       = [ScopeVariables]
 type ProgramExecution a = (ProgramState, IO ())
 type ScopeVariables     = [(String, VariableType)]
-data VariableType       = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Eq, Show)
+data VariableType       = NumericT Double | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Eq, Show)
 
 
 data ObjCall = ObjCall ObjCall String | ObjFCall ObjCall FCExpr | ObjFBase FCExpr | ObjIBase String deriving(Eq, Show)
@@ -45,7 +45,7 @@ data Stmt =    Seq [Stmt]
                | FCall FCExpr
                | If BExpr Stmt Stmt
                | While BExpr Stmt
-               | Print String
+               | Print AssignableE
                | Skip
                | OCall ObjCall
                 deriving (Eq, Show)
@@ -53,7 +53,12 @@ data Stmt =    Seq [Stmt]
 data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Eq, Show)
 
 data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec deriving (Eq, Show)
-data GenericExpr    = AlgebraicE AExpr | BooleanE BExpr | IdentifierE String | FunctionCallE FCExpr | ObjCallE ObjCall deriving (Eq, Show)
+data GenericExpr    = AlgebraicE AExpr
+                      | BooleanE BExpr
+                      | StringE String
+                      | IdentifierE String
+                      | FunctionCallE FCExpr
+                      | ObjCallE ObjCall deriving (Eq, Show)
 
 -- Binary Operations
 data BBinaryOp  = And | Or deriving (Eq, Show)
@@ -70,15 +75,13 @@ data BExpr = BConst Bool
 
 data ABinaryOp = Add | Subtract | Multiply | Divide deriving (Eq, Show)
 data AExpr = Neg AExpr
-           | IntConst Integer
+           | NumericConst Double
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
-           | AFCExpr FCExpr
            | AFCall FCExpr
              deriving (Eq, Show)
 
 -- Function Expressions (Declaration and Call)
 data FDExpr         = FDExpr [String] Stmt deriving (Eq, Show)
 data FCExpr         = FCExpr String [GenericExpr]  deriving (Eq, Show)
-
 

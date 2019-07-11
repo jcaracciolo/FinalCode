@@ -10,6 +10,7 @@ import TokenParser
 import LanguageDef
 import Text.ParserCombinators.Parsec
 import ScopeEvaluator
+import Control.Exception
 
 
 compilerTests = TestList [
@@ -30,6 +31,19 @@ assertError::SomeException -> Assertion
 assertError _ = assertBool "Exception was thrown" True
 
 -- END OF UTILS
+
+test2 = TestCase (
+         do
+            code <- readFile "test.js"
+            catch (
+
+                case parse (whiteSpace >> program) "" code of
+                     Left e  -> assertBool "" False
+                     Right r -> do
+                                (_, finalState) <- runStateT (eval r) [[]]
+                                assertBool "Exception was not thrown" False
+                  ) assertError
+        )
 
 
 testIfElse = TestCase (
