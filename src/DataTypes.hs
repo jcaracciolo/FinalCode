@@ -78,7 +78,6 @@ data AExpr = Neg AExpr
            | NumericConst Double
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
-           | AFCExpr FCExpr
            | AFCall FCExpr
              deriving (Show)
 

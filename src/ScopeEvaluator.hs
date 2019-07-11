@@ -11,7 +11,6 @@ getVar,
 hasReturned,
 modifyInObject,
 getVariableInObject,
-toString,
 ) where
 
 import DataTypes
@@ -115,11 +114,3 @@ hasReturned [] = False
 hasReturned (s:ss) = case evalInScope s "return" of Nothing -> hasReturned ss
                                                     Just Undefined -> False
                                                     Just _ -> True
-
-toString::VariableType -> String
-toString (NumericT d)                               = show d
-toString (StrT s)                                   = s
-toString (BoolT b)                                  = show b
-toString (FunctionT fdexpr)                         = snd $ snd $ runState (prettyPrintFD fdexpr) (0, "")
-toString (ObjectT values)                           = "object"
-toString (Undefined)                                = "undefined"

@@ -18,6 +18,7 @@ import Text.ParserCombinators.Parsec.Language
 import DataTypes
 import LanguageDef
 import TokenParser
+import PrettyPrinter
 import ScopeEvaluator
 
 -- -------------- ARITHMETIC EVALUATOR -------------------------------
