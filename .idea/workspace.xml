@@ -1,22 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c1160240-f227-4015-8cf7-2cfb3b56ba4d" name="Default Changelist" comment="Reestructured project and fixed tests">
-      <change afterPath="$PROJECT_DIR$/test/testBoolAndArithmetic.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testGlobalVariableInsideBlock.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testGlobalVariableInsideFunction.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testIfElse.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testLetVariableInScope.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testLetVariableNotInScope.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testVarVariableInScope.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/testVarVariableNotInScope.js" afterDir="false" />
+    <list default="true" id="c1160240-f227-4015-8cf7-2cfb3b56ba4d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/test/testWhile.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/package.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataTypes.hs" beforeDir="false" afterPath="$PROJECT_DIR$/src/DataTypes.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ScopeEvaluator.hs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ScopeEvaluator.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stack.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/stack.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/CompilerTest.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test/CompilerTest.hs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/CompilerTest.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test/IntegrationTest.hs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/Spec.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Spec.hs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.stack-work/" />
     <ignored path="$PROJECT_DIR$/dist/" />
@@ -30,36 +19,46 @@
     <session id="179291726">
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cabal" value="196" />
-          <entry key="hs" value="1134" />
-          <entry key="js" value="346" />
-          <entry key="txt" value="52" />
+          <entry key="cabal" value="211" />
+          <entry key="hs" value="1377" />
+          <entry key="js" value="445" />
+          <entry key="txt" value="195" />
           <entry key="yaml" value="241" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Cabal" value="196" />
-          <entry key="Haskell" value="1134" />
-          <entry key="JavaScript" value="346" />
-          <entry key="PLAIN_TEXT" value="52" />
+          <entry key="Cabal" value="211" />
+          <entry key="Haskell" value="1377" />
+          <entry key="JavaScript" value="445" />
+          <entry key="PLAIN_TEXT" value="195" />
           <entry key="YAML" value="241" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="hs" value="17" />
-          <entry key="js" value="12" />
+          <entry key="cabal" value="1" />
+          <entry key="hs" value="18" />
+          <entry key="js" value="14" />
           <entry key="md" value="1" />
+          <entry key="test-FinalCode-test" value="1" />
           <entry key="yaml" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Haskell" value="17" />
-          <entry key="JavaScript" value="12" />
+          <entry key="Cabal" value="1" />
+          <entry key="Haskell" value="18" />
+          <entry key="JavaScript" value="14" />
           <entry key="Markdown" value="1" />
+          <entry key="PLAIN_TEXT" value="1" />
           <entry key="YAML" value="4" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.2" value="1" />
+          <entry key="project.opened" value="1" />
         </counts>
       </usages-collector>
     </session>
@@ -67,82 +66,28 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/test/CompilerTest.hs">
+        <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="103">
-              <caret line="33" lean-forward="true" selection-start-line="33" selection-end-line="33" />
+            <state relative-caret-position="-289">
+              <caret line="28" column="8" lean-forward="true" selection-start-line="28" selection-start-column="8" selection-end-line="28" selection-end-column="8" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ScopeEvaluator.hs">
+        <entry file="file://$PROJECT_DIR$/FinalCode.cabal">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" column="7" selection-start-line="12" selection-start-column="7" selection-end-line="12" selection-end-column="7" />
+            <state relative-caret-position="392">
+              <caret line="61" column="21" selection-start-line="61" selection-start-column="21" selection-end-line="61" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/testGlobalVariableInsideBlock.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/DataTypes.hs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1258">
-              <caret line="74" column="24" selection-start-line="74" selection-start-column="24" selection-end-line="74" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Interpreter.hs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="30" selection-start-line="30" selection-end-line="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/testGlobalVariableInsideFunction.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/testLetVariableNotInScope.js">
+        <entry file="file://$PROJECT_DIR$/test/Spec.hs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="51">
-              <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/testBoolAndArithmetic.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="16" selection-start-column="16" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/testVarVariableInScope.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret selection-end-line="3" selection-end-column="2" />
+              <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -213,7 +158,6 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/app/Compiler.hs" />
         <option value="$PROJECT_DIR$/test/Asdasd.hs" />
-        <option value="$PROJECT_DIR$/test/Spec.hs" />
         <option value="$PROJECT_DIR$/test/ScopeEvaluatorTest.hs" />
         <option value="$PROJECT_DIR$/src/Compiler.hs" />
         <option value="$PROJECT_DIR$/src/NoSpacesParsec.hs" />
@@ -222,7 +166,6 @@
         <option value="$PROJECT_DIR$/src/DataTypes.hs" />
         <option value="$PROJECT_DIR$/test/testLetVariableNotInScope.js" />
         <option value="$PROJECT_DIR$/package.yaml" />
-        <option value="$PROJECT_DIR$/FinalCode.cabal" />
         <option value="$PROJECT_DIR$/stack.yaml" />
         <option value="$PROJECT_DIR$/test/test2.js" />
         <option value="$PROJECT_DIR$/test/testVarVariableInScope.js" />
@@ -231,7 +174,11 @@
         <option value="$PROJECT_DIR$/test/testGlobalVariableInsideBlock.js" />
         <option value="$PROJECT_DIR$/test/testGlobalVariableInsideFunction.js" />
         <option value="$PROJECT_DIR$/test/testIfElse.js" />
+        <option value="$PROJECT_DIR$/test/testWhile.js" />
         <option value="$PROJECT_DIR$/test/CompilerTest.hs" />
+        <option value="$PROJECT_DIR$/test/Spec.hs" />
+        <option value="$PROJECT_DIR$/test/IntegrationTest.hs" />
+        <option value="$PROJECT_DIR$/FinalCode.cabal" />
       </list>
     </option>
   </component>
@@ -240,6 +187,12 @@
   <component name="JsGulpfileManager">
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectView">
     <navigator currentView="Scope" currentSubView="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope" proportions="" version="1">
@@ -252,11 +205,6 @@
             <path>
               <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
               <item name="FinalCode" type="2674bda8:ScopeViewTreeModel$GroupNode" />
-            </path>
-            <path>
-              <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
-              <item name="FinalCode" type="2674bda8:ScopeViewTreeModel$GroupNode" />
-              <item name="app" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
             <path>
               <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
@@ -299,7 +247,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1562802277158" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1562886925669" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -332,6 +280,11 @@
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/Compiler.hs</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/DataTypes.hs</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/LanguageDef.hs</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/PrettyPrinter.hs</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/ScopeEvaluator.hs</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/TokenParser.hs</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/test/CompilerTest.hs</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
@@ -340,7 +293,6 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="CREATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/test.js</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Deleted" />
@@ -472,6 +424,7 @@
       <workItem from="1562081851648" duration="18977000" />
       <workItem from="1562187483284" duration="64000" />
       <workItem from="1562187571118" duration="29392000" />
+      <workItem from="1562884649096" duration="2250000" />
     </task>
     <task id="LOCAL-00001" summary="Added tests">
       <created>1562718520359</created>
@@ -487,24 +440,30 @@
       <option name="project" value="LOCAL" />
       <updated>1562722591178</updated>
     </task>
-    <task id="LOCAL-00003" summary="Changed gitignore">
-      <created>1562199014958</created>
+    <task id="LOCAL-00003" summary="DataTypes derive now from Eq&#10;Exported evalVar from ScopeEvaluator&#10;Added first suite of tests">
+      <created>1562804064331</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1562199014958</updated>
+      <updated>1562804064331</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00004" summary="Changed IntT in tests for NumericT">
+      <created>1562885292880</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1562885292880</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="26942000" />
+    <option name="totallyTimeSpent" value="30596000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17430703" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17590618" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -549,7 +508,9 @@
     <MESSAGE value="Changed gitignore" />
     <MESSAGE value="Added tests" />
     <MESSAGE value="Reestructured project and fixed tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Reestructured project and fixed tests" />
+    <MESSAGE value="DataTypes derive now from Eq&#10;Exported evalVar from ScopeEvaluator&#10;Added first suite of tests" />
+    <MESSAGE value="Changed IntT in tests for NumericT" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed IntT in tests for NumericT" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/LanguageDef.hs">
@@ -598,13 +559,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/Spec.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="33" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/TokenParser.hs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2218">
@@ -626,13 +580,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/FinalCode.cabal">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="392">
-          <caret line="73" column="11" selection-start-line="73" selection-start-column="11" selection-end-line="73" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stack.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="335">
@@ -647,73 +594,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/testVarVariableNotInScope.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/test.js">
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/testBoolAndArithmetic.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="16" selection-start-column="16" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/testLetVariableNotInScope.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/testVarVariableInScope.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret selection-end-line="3" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/testGlobalVariableInsideFunction.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/DataTypes.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1258">
-          <caret line="74" column="24" selection-start-line="74" selection-start-column="24" selection-end-line="74" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Interpreter.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="30" selection-start-line="30" selection-end-line="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ScopeEvaluator.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="7" selection-start-line="12" selection-start-column="7" selection-end-line="12" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/testGlobalVariableInsideBlock.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -724,10 +608,101 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/CompilerTest.hs">
+    <entry file="file://$PROJECT_DIR$/src/ScopeEvaluator.hs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="103">
-          <caret line="33" lean-forward="true" selection-start-line="33" selection-end-line="33" />
+        <state relative-caret-position="204">
+          <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testGlobalVariableInsideBlock.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/DataTypes.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1258">
+          <caret line="79" column="24" selection-start-line="79" selection-start-column="24" selection-end-line="79" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Interpreter.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="30" selection-start-line="30" selection-end-line="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testGlobalVariableInsideFunction.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testLetVariableNotInScope.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testBoolAndArithmetic.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="16" selection-start-column="16" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testVarVariableInScope.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testVarVariableNotInScope.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testWhile.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="1" lean-forward="true" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/Spec.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.stack-work/dist/e626a42b/stack-build-caches/e96d3a46d88e7a8e2d19e955ca82da4f85c2ac1733f3806306bc1aebefce14ab/test-FinalCode-test">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="45" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FinalCode.cabal">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="392">
+          <caret line="61" column="21" selection-start-line="61" selection-start-column="21" selection-end-line="61" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-289">
+          <caret line="28" column="8" lean-forward="true" selection-start-line="28" selection-start-column="8" selection-end-line="28" selection-end-column="8" />
         </state>
       </provider>
     </entry>
