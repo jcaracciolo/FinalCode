@@ -1,7 +1,9 @@
 module Compiler(
 mainCompile,
 eval,
-evalB
+evalB,
+evalObjCall,
+evalFCall
 )where
 
 import DataTypes
