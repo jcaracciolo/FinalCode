@@ -1,5 +1,5 @@
 module ScopeEvaluator(
-expectInt,
+expectNumeric,
 expectBool,
 expectStr,
 expectFn,
@@ -11,12 +11,14 @@ getVar,
 hasReturned,
 modifyInObject,
 getVariableInObject,
+toString,
 ) where
 
 import DataTypes
 import Control.Arrow
 import Control.Exception
 import Control.Monad.State.Lazy
+import PrettyPrinter
 
 isDefined::String -> ScopeVariables -> Bool
 isDefined name  []      = False
@@ -88,9 +90,9 @@ getVariableInObject name [] = Nothing
 getVariableInObject name (s:ss) = let (oname, ovalue) = s in if name == oname then Just ovalue else getVariableInObject name ss >>= Just
 
 
-expectInt:: VariableType -> Integer
-expectInt (IntT i) = i
-expectInt t = error ("Expected Integer in but got " ++ (show t))
+expectNumeric:: VariableType -> Double
+expectNumeric (NumericT i) = i
+expectNumeric t = error ("Expected Integer in but got " ++ (show t))
 
 expectBool:: VariableType -> Bool
 expectBool (BoolT b) = b
@@ -114,3 +116,10 @@ hasReturned (s:ss) = case evalInScope s "return" of Nothing -> hasReturned ss
                                                     Just Undefined -> False
                                                     Just _ -> True
 
+toString::VariableType -> String
+toString (NumericT d)                               = show d
+toString (StrT s)                                   = s
+toString (BoolT b)                                  = show b
+toString (FunctionT fdexpr)                         = snd $ snd $ runState (prettyPrintFD fdexpr) (0, "")
+toString (ObjectT values)                           = "object"
+toString (Undefined)                                = "undefined"

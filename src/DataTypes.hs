@@ -30,7 +30,7 @@ type MState s = StateT s IO
 type ProgramState       = [ScopeVariables]
 type ProgramExecution a = (ProgramState, IO ())
 type ScopeVariables     = [(String, VariableType)]
-data VariableType       = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Show)
+data VariableType       = NumericT Double | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Show)
 
 
 data ObjCall = ObjCall ObjCall String | ObjFCall ObjCall FCExpr | ObjFBase FCExpr | ObjIBase String deriving(Show)
@@ -45,7 +45,7 @@ data Stmt =    Seq [Stmt]
                | FCall FCExpr
                | If BExpr Stmt Stmt
                | While BExpr Stmt
-               | Print String
+               | Print AssignableE
                | Skip
                | OCall ObjCall
                 deriving (Show)
@@ -53,7 +53,12 @@ data Stmt =    Seq [Stmt]
 data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Show)
 
 data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec deriving (Show)
-data GenericExpr    = AlgebraicE AExpr | BooleanE BExpr | IdentifierE String | FunctionCallE FCExpr | ObjCallE ObjCall deriving (Show)
+data GenericExpr    = AlgebraicE AExpr
+                      | BooleanE BExpr
+                      | StringE String
+                      | IdentifierE String
+                      | FunctionCallE FCExpr
+                      | ObjCallE ObjCall deriving (Show)
 
 -- Binary Operations
 data BBinaryOp  = And | Or deriving (Show)
@@ -70,7 +75,7 @@ data BExpr = BConst Bool
 
 data ABinaryOp = Add | Subtract | Multiply | Divide deriving (Show)
 data AExpr = Neg AExpr
-           | IntConst Integer
+           | NumericConst Double
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
            | AFCExpr FCExpr
@@ -80,5 +85,4 @@ data AExpr = Neg AExpr
 -- Function Expressions (Declaration and Call)
 data FDExpr         = FDExpr [String] Stmt deriving (Show)
 data FCExpr         = FCExpr String [GenericExpr]  deriving (Show)
-
 

@@ -1,5 +1,6 @@
 module PrettyPrinter(
-mainPrettyPrint
+mainPrettyPrint,
+prettyPrintFD
 )where
 import DataTypes
 import TokenParser
@@ -50,7 +51,7 @@ prettyPrintABin aexpr1 aexpr2 op = do
                              return $ (wrap i1) ++ op ++ (wrap i2)
 
 prettyPrintA::AExpr -> State PrinterState String
-prettyPrintA (IntConst i)                   = return $ show i
+prettyPrintA (NumericConst i)                   = return $ show i
 prettyPrintA (Neg aexpr)                    = prettyPrintA aexpr >>= \s -> return $ "-" ++ (wrap s)
 prettyPrintA (ABinary Add expr1 expr2)      = prettyPrintABin expr1 expr2 " + "
 prettyPrintA (ABinary Subtract expr1 expr2) = prettyPrintABin expr1 expr2 " - "
@@ -81,12 +82,13 @@ prettyPrintB (VarB s)                             = return s
 prettyPrintB (BFCall fcexpr)                      = prettyPrintFC fcexpr >>= (wrap >>> return)
 
 -------- Assignable Pretty Print
-
 prettyPrintAssignable::AssignableE -> State PrinterState ()
 prettyPrintAssignable (ValueE (AlgebraicE    aexpr))    = prettyPrintA aexpr >>= mAppend
 prettyPrintAssignable (ValueE (BooleanE      bexpr))    = prettyPrintB bexpr >>= mAppend
 prettyPrintAssignable (ValueE (IdentifierE oldName))    = mAppend oldName
+prettyPrintAssignable (ValueE (StringE str))            = mAppend str
 prettyPrintAssignable (FDeclare fdexpr)                 = prettyPrintFD fdexpr
+prettyPrintAssignable (ODec o)                          = return ()
 prettyPrintAssignable (ValueE (FunctionCallE fcexpr))   = prettyPrintFC fcexpr >>= mAppend
 
 prettyPrintAssign::String -> String -> AssignableE -> State PrinterState ()
@@ -167,8 +169,12 @@ prettyPrint (While bexpr stmt)                 = do newLine
 
 prettyPrint(FCall fcexpr)                        = newLine >> prettyPrintFC fcexpr >>= mAppend
 
-prettyPrint (Print s) = newLine >> mAppend ("print(\"" ++ s ++ "\")")
-prettyPrint (a) = newLine >> mAppend ("Not Sure about ")
+prettyPrint (Print a) = do newLine
+                           mAppend "print("
+                           prettyPrintAssignable a
+                           mAppend ")"
+
+prettyPrint (a) = newLine >> mAppend ("Not Sure about " ++ (show a))
 
 mainPrettyPrint = do
     [filename] <- getArgs

@@ -22,21 +22,21 @@ import ScopeEvaluator
 
 -- -------------- ARITHMETIC EVALUATOR -------------------------------
 
-evalABin::AExpr -> AExpr -> (Integer -> Integer -> a) -> MState ProgramState a
+evalABin::AExpr -> AExpr -> (Double -> Double -> a) -> MState ProgramState a
 evalABin aexpr1 aexpr2 op = do
                              i1 <- evalA aexpr1
                              i2 <- evalA aexpr2
                              return $ op i1 i2
 
-evalA :: AExpr -> MState ProgramState Integer
-evalA (IntConst i) = return i
+evalA :: AExpr -> MState ProgramState Double
+evalA (NumericConst i) = return i
 evalA (Neg aexpr)  = evalA aexpr >>= (\i-> return (-i))
 evalA (ABinary Add expr1 expr2)         = evalABin expr1 expr2 (+)
 evalA (ABinary Subtract expr1 expr2)    = evalABin expr1 expr2 (-)
 evalA (ABinary Multiply expr1 expr2)    = evalABin expr1 expr2 (*)
-evalA (ABinary Divide expr1 expr2)      = evalABin expr1 expr2 div
-evalA (VarA s)                          = getVar s >>= (expectInt >>> return)
-evalA (AFCall fcexpr)                   = evalFCall fcexpr >>= (expectInt >>> return)
+evalA (ABinary Divide expr1 expr2)      = evalABin expr1 expr2 (/)
+evalA (VarA s)                          = getVar s >>= (expectNumeric >>> return)
+evalA (AFCall fcexpr)                   = evalFCall fcexpr >>= (expectNumeric >>> return)
 
 
 -- -------------- BOOLEAN EVALUATOR -------------------------------
@@ -92,12 +92,18 @@ evalParamsInSequence ((s, g):otherParams) = do value <- evalG g
 
 -- -------------- GENERAL EXPRESSION EVALUATOR -------------------------------
 evalG::GenericExpr -> MState ProgramState VariableType
-evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (IntT >>> return)
+evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (NumericT >>> return)
+evalG (StringE str)                          = return (StrT str)
 evalG (BooleanE bexpr)                       = evalB bexpr >>= (BoolT >>> return)
 evalG (IdentifierE name)                     = getVar name >>= return
 evalG (FunctionCallE fcexpr)                 = evalFCall fcexpr >>= return
 evalG (ObjCallE obj)                         = evalObjCall obj >>= return
 
+
+toStrG::AssignableE -> MState ProgramState String
+toStrG a = do
+           var <- evalAssignable a
+           return (toString var)
 
 -- -------------- ASSIGNMENT EVALUATOR -------------------------------
 
@@ -217,7 +223,7 @@ eval (While bexpr stmt)                        = eval(If bexpr (Seq [stmt, (Whil
 
 eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
-eval (Print s) = liftIO (putStrLn s) >> return ()
+eval (Print sexpr)                             = toStrG sexpr >>= liftIO . putStrLn >> return ()
 eval (a) = liftIO (print a) >> (return ())
 
 

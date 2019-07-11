@@ -6,7 +6,7 @@ reserved,
 reservedOp,
 braces,
 parens,
-integer,
+number,
 semi,
 whiteSpace,
 aOperators,
@@ -81,7 +81,9 @@ reserved    = Token.reserved    lexer -- parses a reserved name
 reservedOp  = Token.reservedOp  lexer -- parses an operator
 braces      = Token.braces      lexer -- parses braces
 parens      = Token.parens      lexer -- parses surrounding parenthesis
-integer     = Token.integer     lexer -- parses an integer
+integer     = Token.integer lexer -- parses an integer
+float       = Token.float lexer -- parses an integer
+number      = try float <|> (integer >>= (return . fromIntegral))
 semi        = Token.semi        lexer -- parses a semicolon
 commaSep    = Token.commaSep    lexer -- parses a semicolon
 whiteSpace  = Token.whiteSpace  lexer -- parses whiteSpace
