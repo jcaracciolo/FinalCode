@@ -10,6 +10,7 @@ modifyVar,
 getVar,
 hasReturned,
 modifyInObject,
+evalVar,
 ) where
 
 import DataTypes

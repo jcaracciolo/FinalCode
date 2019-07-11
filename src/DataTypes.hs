@@ -30,11 +30,11 @@ type MState s = StateT s IO
 type ProgramState       = [ScopeVariables]
 type ProgramExecution a = (ProgramState, IO ())
 type ScopeVariables     = [(String, VariableType)]
-data VariableType       = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Show)
+data VariableType       = IntT Integer | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Eq, Show)
 
 
-data ObjCall = ObjCall ObjCall String | ObjFCall ObjCall FCExpr | ObjFBase FCExpr | ObjIBase String deriving(Show)
-data ObjDec  = ObjDec [(String, AssignableE)] deriving(Show)
+data ObjCall = ObjCall ObjCall String | ObjFCall ObjCall FCExpr | ObjFBase FCExpr | ObjIBase String deriving(Eq, Show)
+data ObjDec  = ObjDec [(String, AssignableE)] deriving(Eq, Show)
 
 ---- Statements
 data Stmt =    Seq [Stmt]
@@ -48,16 +48,16 @@ data Stmt =    Seq [Stmt]
                | Print String
                | Skip
                | OCall ObjCall
-                deriving (Show)
+                deriving (Eq, Show)
 
-data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Show)
+data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Eq, Show)
 
-data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec deriving (Show)
-data GenericExpr    = AlgebraicE AExpr | BooleanE BExpr | IdentifierE String | FunctionCallE FCExpr | ObjCallE ObjCall deriving (Show)
+data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec deriving (Eq, Show)
+data GenericExpr    = AlgebraicE AExpr | BooleanE BExpr | IdentifierE String | FunctionCallE FCExpr | ObjCallE ObjCall deriving (Eq, Show)
 
 -- Binary Operations
-data BBinaryOp  = And | Or deriving (Show)
-data BCompareOp = Greater | GreaterE | Equal | LessE | Less deriving (Show)
+data BBinaryOp  = And | Or deriving (Eq, Show)
+data BCompareOp = Greater | GreaterE | Equal | LessE | Less deriving (Eq, Show)
 
 data BExpr = BConst Bool
           | Not BExpr
@@ -65,20 +65,20 @@ data BExpr = BConst Bool
           | BCompare BCompareOp AExpr AExpr
           | VarB String
           | BFCall FCExpr
-          deriving (Show)
+          deriving (Eq, Show)
 
 
-data ABinaryOp = Add | Subtract | Multiply | Divide deriving (Show)
+data ABinaryOp = Add | Subtract | Multiply | Divide deriving (Eq, Show)
 data AExpr = Neg AExpr
            | IntConst Integer
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
            | AFCExpr FCExpr
            | AFCall FCExpr
-             deriving (Show)
+             deriving (Eq, Show)
 
 -- Function Expressions (Declaration and Call)
-data FDExpr         = FDExpr [String] Stmt deriving (Show)
-data FCExpr         = FCExpr String [GenericExpr]  deriving (Show)
+data FDExpr         = FDExpr [String] Stmt deriving (Eq, Show)
+data FCExpr         = FCExpr String [GenericExpr]  deriving (Eq, Show)
 
 
