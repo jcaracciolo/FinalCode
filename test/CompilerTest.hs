@@ -52,7 +52,7 @@ testIfElse = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
 testWhile = TestCase (
@@ -61,7 +61,7 @@ testWhile = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
 
@@ -72,7 +72,7 @@ testBoolAndArithmetic = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 2" (IntT 2) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 2" (NumericT 2) (evalVar finalState "ans"))
         )
 
 testLetVariableInScope = TestCase (
@@ -81,7 +81,7 @@ testLetVariableInScope = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
 -- TODO: Make this test catch the error
@@ -91,7 +91,7 @@ testLetVariableNotInScope = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 12" (IntT 12) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 12" (NumericT 12) (evalVar finalState "ans"))
 --                             (assertEqual "ans equals 1" 2 (evalVar finalState "ans"))
          )
 
@@ -101,7 +101,7 @@ testVarVariableInScope = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
 -- TODO: Make this test catch the error
@@ -111,7 +111,7 @@ testVarVariableNotInScope = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
 testGlobalVariableInsideBlock = TestCase (
@@ -120,7 +120,7 @@ testGlobalVariableInsideBlock = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
 testGlobalVariableInsideFunction = TestCase (
@@ -129,5 +129,5 @@ testGlobalVariableInsideFunction = TestCase (
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do
                             (_, finalState) <- runStateT (eval r) [[]]
-                            (assertEqual "ans equals 1" (IntT 1) (evalVar finalState "ans"))
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
