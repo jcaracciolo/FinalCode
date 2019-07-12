@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c1160240-f227-4015-8cf7-2cfb3b56ba4d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/test/resources/testCallFunctionLessParameters.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testCallFunctionMoreParameters.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testCallFunctionOneParameter.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testCallFunctionReturnedByFunction.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testCallFunctionTwoParameters.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testFunctionReturnsValue.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testNoExecutionAfterReturn.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testObject.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testObjectFunction.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/resources/testObjectProperty.js" afterDir="false" />
+    <list default="true" id="c1160240-f227-4015-8cf7-2cfb3b56ba4d" name="Default Changelist" comment="Added tests for functions, and objects">
+      <change afterPath="$PROJECT_DIR$/test/resources/testObjectInsideIfFails.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/resources/testObjectPropertyInsideIf.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/IntegrationTest.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test/IntegrationTest.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Spec.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Spec.hs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.stack-work/" />
     <ignored path="$PROJECT_DIR$/dist/" />
@@ -29,18 +20,18 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="cabal" value="211" />
-          <entry key="hs" value="2064" />
-          <entry key="js" value="726" />
-          <entry key="txt" value="263" />
+          <entry key="hs" value="2198" />
+          <entry key="js" value="756" />
+          <entry key="txt" value="302" />
           <entry key="yaml" value="241" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Cabal" value="211" />
-          <entry key="Haskell" value="2064" />
-          <entry key="JavaScript" value="726" />
-          <entry key="PLAIN_TEXT" value="263" />
+          <entry key="Haskell" value="2198" />
+          <entry key="JavaScript" value="756" />
+          <entry key="PLAIN_TEXT" value="302" />
           <entry key="YAML" value="241" />
         </counts>
       </usages-collector>
@@ -48,7 +39,7 @@
         <counts>
           <entry key="cabal" value="1" />
           <entry key="hs" value="18" />
-          <entry key="js" value="25" />
+          <entry key="js" value="27" />
           <entry key="md" value="1" />
           <entry key="test-FinalCode-test" value="1" />
           <entry key="yaml" value="4" />
@@ -58,7 +49,7 @@
         <counts>
           <entry key="Cabal" value="1" />
           <entry key="Haskell" value="18" />
-          <entry key="JavaScript" value="25" />
+          <entry key="JavaScript" value="27" />
           <entry key="Markdown" value="1" />
           <entry key="PLAIN_TEXT" value="1" />
           <entry key="YAML" value="4" />
@@ -74,11 +65,29 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="237" column="63" selection-start-line="237" selection-start-column="63" selection-end-line="237" selection-end-column="63" />
+            <state relative-caret-position="187">
+              <caret line="16" column="61" lean-forward="true" selection-start-line="16" selection-start-column="61" selection-end-line="16" selection-end-column="61" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/resources/testObjectInsideIfFails.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="10" column="1" lean-forward="true" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/resources/testObjectPropertyInsideIf.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -86,13 +95,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/resources/testObjectProperty.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+            <state>
+              <caret selection-end-line="8" selection-end-column="19" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/resources/testObjectFunction.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="136">
@@ -204,9 +213,11 @@
         <option value="$PROJECT_DIR$/test/resources/testCallFunctionReturnedByFunction.js" />
         <option value="$PROJECT_DIR$/test/Spec.hs" />
         <option value="$PROJECT_DIR$/test/resources/testObject.js" />
-        <option value="$PROJECT_DIR$/test/IntegrationTest.hs" />
         <option value="$PROJECT_DIR$/test/resources/testObjectProperty.js" />
         <option value="$PROJECT_DIR$/test/resources/testObjectFunction.js" />
+        <option value="$PROJECT_DIR$/test/resources/testObjectPropertyInsideIf.js" />
+        <option value="$PROJECT_DIR$/test/resources/testObjectInsideIfFails.js" />
+        <option value="$PROJECT_DIR$/test/IntegrationTest.hs" />
       </list>
     </option>
   </component>
@@ -281,7 +292,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1562893338080" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1562896496606" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -460,7 +471,7 @@
       <workItem from="1562081851648" duration="18977000" />
       <workItem from="1562187483284" duration="64000" />
       <workItem from="1562187571118" duration="29392000" />
-      <workItem from="1562884649096" duration="7243000" />
+      <workItem from="1562884649096" duration="8685000" />
     </task>
     <task id="LOCAL-00001" summary="Added tests">
       <created>1562718520359</created>
@@ -497,16 +508,24 @@
       <option name="project" value="LOCAL" />
       <updated>1562887055018</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added tests for functions, and objects">
+      <created>1562893574578</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1562893574578</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35589000" />
+    <option name="totallyTimeSpent" value="37031000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17590618" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17590618" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -520,7 +539,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.4994664" visible="true" weight="0.4002169" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.4994664" visible="true" weight="0.4002169" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50053364" side_tool="true" weight="0.33297414" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.3297414" />
@@ -554,7 +573,8 @@
     <MESSAGE value="DataTypes derive now from Eq&#10;Exported evalVar from ScopeEvaluator&#10;Added first suite of tests" />
     <MESSAGE value="Changed IntT in tests for NumericT" />
     <MESSAGE value="Renamed test file&#10;Added resources directory&#10;Added while test" />
-    <option name="LAST_COMMIT_MESSAGE" value="Renamed test file&#10;Added resources directory&#10;Added while test" />
+    <MESSAGE value="Added tests for functions, and objects" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added tests for functions, and objects" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/LanguageDef.hs">
@@ -792,6 +812,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test/resources/testObjectFunction.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test/resources/testObject.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -799,24 +826,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="237" column="63" selection-start-line="237" selection-start-column="63" selection-end-line="237" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/resources/testObjectProperty.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+        <state>
+          <caret selection-end-line="8" selection-end-column="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/resources/testObjectFunction.js">
+    <entry file="file://$PROJECT_DIR$/test/resources/testObjectPropertyInsideIf.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+        <state relative-caret-position="170">
+          <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/resources/testObjectInsideIfFails.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="1" lean-forward="true" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="16" column="61" lean-forward="true" selection-start-line="16" selection-start-column="61" selection-end-line="16" selection-end-column="61" />
         </state>
       </provider>
     </entry>

@@ -32,7 +32,9 @@ integrationTests = TestList [
                     TestLabel "Call function returned by another function" testCallFunctionReturnedByFunction,
                     TestLabel "Define Object" testObject,
                     TestLabel "Access object property" testObjectProperty,
-                    TestLabel "Access object function" testObjectFunction
+                    TestLabel "Access and call object function" testObjectFunction,
+                    TestLabel "Use object property inside if" testObjectPropertyInsideIf,
+                    TestLabel "Object inside if fails" testObjectInsideIfFails
                     ]
 
 -- UTILS
@@ -242,3 +244,23 @@ testObjectFunction = TestCase (
                             (_, finalState) <- runStateT (eval r) [[]]
                             (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
+
+
+testObjectPropertyInsideIf = TestCase (
+         do code <- readFile "test/resources/testObjectPropertyInsideIf.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testObjectInsideIfFails = TestCase (
+         do code <- readFile "test/resources/testCallFunctionLessParameters.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            catch (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans")) assertError
+         )
