@@ -70,6 +70,7 @@ data BExpr = BConst Bool
           | BCompare BCompareOp AExpr AExpr
           | VarB String
           | BFCall FCExpr
+          | BOCall ObjCall
           deriving (Eq, Show)
 
 
@@ -79,6 +80,7 @@ data AExpr = Neg AExpr
            | ABinary ABinaryOp AExpr AExpr
            | VarA String
            | AFCall FCExpr
+           | AOCall ObjCall
              deriving (Eq, Show)
 
 -- Function Expressions (Declaration and Call)

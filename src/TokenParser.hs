@@ -19,6 +19,11 @@ program = do
             stmts <- many1 statement
             return $ Seq stmts
 
+maybeProgram :: Parser Stmt
+maybeProgram = do
+            stmts <- many statement
+            return $ Seq stmts
+
 -- Possible statements (If, While, Assign, Print)
 statement :: Parser Stmt
 statement =  (ifStmt
@@ -46,8 +51,8 @@ aExpression :: Parser AExpr
 aExpression = buildExpressionParser aOperators aTerm
 
 -- Boolean Expresion
-bTerm = (reserved "true"  >> return (BConst True) )
-     <|> (reserved "false" >> return (BConst False))
+bTerm = try (reserved "true"  >> return (BConst True) )
+     <|> try (reserved "false" >> return (BConst False))
      <|> try (liftM BFCall fCallExpression)
      <|> try compareExpresion
      <|> try (liftM VarB identifier)
@@ -74,7 +79,7 @@ fDeclExpression = do
         noSpacesReserved "function"
         notFollowedBy whiteSpace
         parameters <- parens parameterExpression
-        stmts <- braces program
+        stmts <- braces maybeProgram
         return $ FDExpr parameters stmts
 
 parameterExpression:: Parser [String]
@@ -105,10 +110,10 @@ ifStmt :: Parser Stmt
 ifStmt =
   do reserved "if"
      cond  <- parens bExpression
-     stmt1 <- braces program
+     stmt1 <- braces maybeProgram
      stmt2 <- option Skip (do {
                                 reserved "else"
-                                ;s2 <- braces program
+                                ;s2 <- braces maybeProgram
                                 ; return s2
                                 })
      return $ If cond stmt1 stmt2
@@ -118,7 +123,7 @@ whileStmt :: Parser Stmt
 whileStmt =
   do reserved "while"
      cond <- parens bExpression
-     stmt <- braces program
+     stmt <- braces maybeProgram
      return $ While cond stmt
 
 

@@ -50,7 +50,7 @@ languageDef =
                                      , "return"
                                      ]
            , Token.reservedOpNames = [ "+", "-", "*", "/", "="
-                                     , "<", ">", ">=", "<=", "==", "and", "or", "not", ".", ":"
+                                     , "<", ">", ">=", "<=", "==", "&&", "||", "!", ".", ":"
                                      ]
            , Token.caseSensitive = True
            }
@@ -68,10 +68,10 @@ aOperators =[
             ]
 
 bOperators = [
-                [ Prefix (reservedOp "not" >> return Not) ],
+                [ Prefix (reservedOp "!" >> return Not) ],
                 [
-                 Infix  (reservedOp "and" >> return (BBinary And)) AssocLeft,
-                 Infix  (reservedOp "or"  >> return (BBinary Or)) AssocLeft
+                 Infix  (reservedOp "&&" >> return (BBinary And)) AssocLeft,
+                 Infix  (reservedOp "||"  >> return (BBinary Or)) AssocLeft
                 ]
              ]
 
