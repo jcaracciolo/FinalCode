@@ -16,6 +16,8 @@ import qualified Text.ParserCombinators.Parsec as Parsec
 
 type PrinterState = (TabCount, String)
 type TabCount = Int
+type Precedence = Int
+type PrettyReturn = (String, Precedence) -- String | Precedence
 
 addScope::PrinterState -> PrinterState
 addScope (t, s) = (t+1, s)
@@ -38,47 +40,52 @@ newLine   = do
             tabString <- generateTabString
             modify(appendState $ "\n" ++ tabString)
 
-wrap::String -> String
-wrap s = "(" ++ s ++ ")"
+wrap::Precedence -> PrettyReturn -> String
+wrap p (s,i) = if i>p then "(" ++ s ++ ")" else s
+
+dropP::PrettyReturn -> State PrinterState String
+dropP (s,i) = return s
 
 -------   Algebraic Pretty Print
 
-prettyPrintABin::AExpr -> AExpr -> String -> State PrinterState String
-prettyPrintABin aexpr1 aexpr2 op = do
+prettyPrintABin::AExpr -> AExpr -> String -> Precedence -> State PrinterState PrettyReturn
+prettyPrintABin aexpr1 aexpr2 op p = do
                              i1 <- prettyPrintA aexpr1
                              i2 <- prettyPrintA aexpr2
-                             return $ (wrap i1) ++ op ++ (wrap i2)
+                             return $ ((wrap p i1) ++ op ++ (wrap p i2), p)
 
-prettyPrintA::AExpr -> State PrinterState String
-prettyPrintA (NumericConst i)                   = return $ show i
-prettyPrintA (Neg aexpr)                    = prettyPrintA aexpr >>= \s -> return $ "-" ++ (wrap s)
-prettyPrintA (ABinary Add expr1 expr2)      = prettyPrintABin expr1 expr2 " + "
-prettyPrintA (ABinary Subtract expr1 expr2) = prettyPrintABin expr1 expr2 " - "
-prettyPrintA (ABinary Multiply expr1 expr2) = prettyPrintABin expr1 expr2 " * "
-prettyPrintA (ABinary Divide expr1 expr2)   = prettyPrintABin expr1 expr2 " / "
-prettyPrintA (VarA s)                       = return s
-prettyPrintA (AFCall fcexpr)                = prettyPrintFC fcexpr >>= (wrap >>> return)
+prettyPrintA::AExpr -> State PrinterState PrettyReturn
+prettyPrintA (NumericConst i)               = return $ (show i, -1)
+prettyPrintA (Neg aexpr)                    = prettyPrintA aexpr >>= \s -> return $ ("-" ++ (wrap 0 s), 0)
+prettyPrintA (ABinary Add expr1 expr2)      = prettyPrintABin expr1 expr2 " + " 2
+prettyPrintA (ABinary Subtract expr1 expr2) = prettyPrintABin expr1 expr2 " - " 2
+prettyPrintA (ABinary Multiply expr1 expr2) = prettyPrintABin expr1 expr2 " * " 1
+prettyPrintA (ABinary Divide expr1 expr2)   = prettyPrintABin expr1 expr2 " / " 1
+prettyPrintA (VarA s)                       = return (s, -1)
+prettyPrintA (AFCall fcexpr)                = prettyPrintFC fcexpr >>= \s -> return (s, -1)
+prettyPrintA (AOCall objC)                  = prettyPrintOC objC >>= \s -> return (s, -1)
 
 -------- Boolean Pretty Print
 
-prettyPrintBBin::BExpr -> BExpr -> String -> State PrinterState String
-prettyPrintBBin bexpr1 bexpr2 op = do
+prettyPrintBBin::BExpr -> BExpr -> String -> Precedence -> State PrinterState PrettyReturn
+prettyPrintBBin bexpr1 bexpr2 op p = do
                              i1 <- prettyPrintB bexpr1
                              i2 <- prettyPrintB bexpr2
-                             return $ (wrap i1) ++ op ++ (wrap i2)
+                             return $ ((wrap p i1) ++ op ++ (wrap p i2), p)
 
-prettyPrintB:: BExpr -> State PrinterState String
-prettyPrintB (BConst b)                           = return $ show b
-prettyPrintB (Not bexpr)                          = prettyPrintB bexpr >>= \s -> return $ "not " ++ wrap(s)
-prettyPrintB (BBinary And bexpr1 bexpr2)          = prettyPrintBBin bexpr1 bexpr2 " && "
-prettyPrintB (BBinary Or bexpr1 bexpr2)           = prettyPrintBBin bexpr1 bexpr2 " || "
-prettyPrintB (BCompare Greater aexpr1 aexpr2)     = prettyPrintABin aexpr1 aexpr2 " > "
-prettyPrintB (BCompare GreaterE aexpr1 aexpr2)    = prettyPrintABin aexpr1 aexpr2 " >= "
-prettyPrintB (BCompare Equal aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " == "
-prettyPrintB (BCompare LessE aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " <= "
-prettyPrintB (BCompare Less aexpr1 aexpr2)        = prettyPrintABin aexpr1 aexpr2 " < "
-prettyPrintB (VarB s)                             = return s
-prettyPrintB (BFCall fcexpr)                      = prettyPrintFC fcexpr >>= (wrap >>> return)
+prettyPrintB:: BExpr -> State PrinterState PrettyReturn
+prettyPrintB (BConst b)                           = return $ (show b, -1)
+prettyPrintB (Not bexpr)                          = prettyPrintB bexpr >>= \s -> return $ ("not " ++ wrap 0 s, 0)
+prettyPrintB (BBinary And bexpr1 bexpr2)          = prettyPrintBBin bexpr1 bexpr2 " && " 4
+prettyPrintB (BBinary Or bexpr1 bexpr2)           = prettyPrintBBin bexpr1 bexpr2 " || " 4
+prettyPrintB (BCompare Greater aexpr1 aexpr2)     = prettyPrintABin aexpr1 aexpr2 " > " 3
+prettyPrintB (BCompare GreaterE aexpr1 aexpr2)    = prettyPrintABin aexpr1 aexpr2 " >= " 3
+prettyPrintB (BCompare Equal aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " == " 3
+prettyPrintB (BCompare LessE aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " <= " 3
+prettyPrintB (BCompare Less aexpr1 aexpr2)        = prettyPrintABin aexpr1 aexpr2 " < " 3
+prettyPrintB (VarB s)                             = return (s, -1)
+prettyPrintB (BFCall fcexpr)                      = prettyPrintFC fcexpr >>= \s -> return (s, -1)
+prettyPrintB (BOCall objC)                        = prettyPrintOC objC >>= \s -> return (s, -1)
 
 -------- Assignable Pretty Print
 prettyPrintAssignable::AssignableE -> State PrinterState ()
@@ -114,12 +121,12 @@ prettyPrintFD (FDExpr params stmts) = do mAppend "function("
 
 
 prettyPrintG::GenericExpr -> State PrinterState String
-prettyPrintG (AlgebraicE aexpr)                     = prettyPrintA aexpr
-prettyPrintG (BooleanE bexpr)                       = prettyPrintB bexpr
+prettyPrintG (AlgebraicE aexpr)                     = prettyPrintA aexpr >>= dropP
+prettyPrintG (BooleanE bexpr)                       = prettyPrintB bexpr >>= dropP
 prettyPrintG (IdentifierE name)                     = return name
 prettyPrintG (FunctionCallE fcexpr)                 = prettyPrintFC fcexpr
 prettyPrintG (ObjCallE oCall)                       = prettyPrintOC oCall
-prettyPrintG (StringE s)                            = return s
+prettyPrintG (StringE s)                            = return $ show s
 
 -------- ObjectCall Pretty Print
 prettyPrintOC::ObjCall -> State PrinterState String
@@ -172,7 +179,7 @@ prettyPrintOTVs (v:vs) = let (s, a) = v in
 
 toString::VariableType -> String
 toString (NumericT d)                               = show d
-toString (StrT s)                                   = s
+toString (StrT s)                                   = show s
 toString (BoolT b)                                  = show b
 toString (FunctionT fdexpr)                         = snd $ snd $ runState (prettyPrintFD fdexpr) (0, "")
 toString (ObjectT values)                           = snd $ snd $ runState (prettyPrintOT values) (0, "")
@@ -198,7 +205,7 @@ prettyPrint (Return assignable)           = do newLine
 
 prettyPrint (If bexpr s1 s2)              = do newLine
                                                mAppend "if("
-                                               cond <- prettyPrintB bexpr
+                                               cond <- (prettyPrintB bexpr >>= dropP)
                                                mAppend cond
                                                mAppend ") {"
                                                modify addScope
@@ -218,7 +225,7 @@ prettyPrint (If bexpr s1 s2)              = do newLine
 prettyPrint (While bexpr stmt)                 = do newLine
                                                     mAppend "while"
                                                     mAppend "("
-                                                    cond <- prettyPrintB bexpr
+                                                    cond <- (prettyPrintB bexpr >>= dropP)
                                                     mAppend cond
                                                     mAppend ") {"
                                                     modify addScope
