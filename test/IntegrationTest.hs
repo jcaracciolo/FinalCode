@@ -23,7 +23,16 @@ integrationTests = TestList [
                     TestLabel "Var variable not in scope" testVarVariableNotInScope,
                     TestLabel "Global variable visible from block" testGlobalVariableInsideBlock,
                     TestLabel "Global variable visible from function" testGlobalVariableInsideFunction,
-                    TestLabel "Code is not executed below return" testNoExecutionAfterReturn
+                    TestLabel "Function returns value" testFunctionReturnsValue,
+                    TestLabel "Code is not executed below return" testNoExecutionAfterReturn,
+                    TestLabel "Function called with 1 parameter" testCallFunctionOneParameter,
+                    TestLabel "Function called with 2 parameters" testCallFunctionTwoParameters,
+                    TestLabel "Function called with less parameters than required" testCallFunctionLessParameters,
+                    TestLabel "Function called with more parameters than required" testCallFunctionMoreParameters,
+                    TestLabel "Call function returned by another function" testCallFunctionReturnedByFunction,
+                    TestLabel "Define Object" testObject,
+                    TestLabel "Access object property" testObjectProperty,
+                    TestLabel "Access object function" testObjectFunction
                     ]
 
 -- UTILS
@@ -69,14 +78,13 @@ testWhile = TestCase (
 
 testBoolAndArithmetic = TestCase (
          do code <- readFile "test/resources/testBoolAndArithmetic.js"
-            catch (
-                case parse (whiteSpace >> program) "" code of
-                     Left e  -> (assertFailure "Parse Failed")
-                     Right r -> do
-                                (_, finalState) <- runStateT (eval r) [[]]
-                                (assertEqual "ans equals 2" (NumericT 2) (evalVar finalState "ans"))
-             ) assertError
-        )
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            catch (assertEqual "ans equals 2" (NumericT 2) (evalVar finalState "ans")) assertError
+         )
+
 
 
 testLetVariableInScope = TestCase (
@@ -90,14 +98,11 @@ testLetVariableInScope = TestCase (
 
 testLetVariableNotInScope = TestCase (
          do code <- readFile "test/resources/testLetVariableNotInScope.js"
-            catch (
-                case parse (whiteSpace >> program) "" code of
-                     Left e  -> (assertFailure "Parse Failed")
-                     Right r -> do
-                                (_, finalState) <- runStateT (eval r) [[]]
-                                (assertEqual "ans equals 12" (NumericT 12) (evalVar finalState "ans"))
-    --                             (assertEqual "ans equals 1" 2 (evalVar finalState "ans"))
-                 ) assertError
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            catch (assertEqual "ans equals 12" (NumericT 12) (evalVar finalState "ans")) assertError
          )
 
 
@@ -112,14 +117,12 @@ testVarVariableInScope = TestCase (
 
 testVarVariableNotInScope = TestCase (
          do code <- readFile "test/resources/testVarVariableNotInScope.js"
-            catch (
-                case parse (whiteSpace >> program) "" code of
-                     Left e  -> (assertFailure "Parse Failed")
-                     Right r -> do
-                                (_, finalState) <- runStateT (eval r) [[]]
-                                (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
-                 ) assertError
-        )
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            catch (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans")) assertError
+         )
 
 
 testGlobalVariableInsideBlock = TestCase (
@@ -141,8 +144,98 @@ testGlobalVariableInsideFunction = TestCase (
                             (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
         )
 
+
+testFunctionReturnsValue = TestCase (
+         do code <- readFile "test/resources/testFunctionReturnsValue.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
 testNoExecutionAfterReturn = TestCase (
          do code <- readFile "test/resources/testNoExecutionAfterReturn.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testCallFunctionOneParameter = TestCase (
+         do code <- readFile "test/resources/testCallFunctionOneParameter.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testCallFunctionTwoParameters = TestCase (
+         do code <- readFile "test/resources/testCallFunctionTwoParameters.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testCallFunctionLessParameters = TestCase (
+         do code <- readFile "test/resources/testCallFunctionLessParameters.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            catch (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans")) assertError
+         )
+
+
+testCallFunctionMoreParameters = TestCase (
+         do code <- readFile "test/resources/testCallFunctionMoreParameters.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+testCallFunctionReturnedByFunction = TestCase (
+         do code <- readFile "test/resources/testCallFunctionReturnedByFunction.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testObject = TestCase (
+         do code <- readFile "test/resources/testObject.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testObjectProperty = TestCase (
+         do code <- readFile "test/resources/testObjectProperty.js"
+            case parse (whiteSpace >> program) "" code of
+                 Left e  -> (assertFailure "Parse Failed")
+                 Right r -> do
+                            (_, finalState) <- runStateT (eval r) [[]]
+                            (assertEqual "ans equals 1" (NumericT 1) (evalVar finalState "ans"))
+        )
+
+
+testObjectFunction = TestCase (
+         do code <- readFile "test/resources/testObjectFunction.js"
             case parse (whiteSpace >> program) "" code of
                  Left e  -> (assertFailure "Parse Failed")
                  Right r -> do

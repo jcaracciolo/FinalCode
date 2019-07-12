@@ -8,5 +8,5 @@ import ScopeEvaluatorTest
 main = do
     putStrLn "##############################\r\nIntegration Tests\r\n##############################"
     runTestTT integrationTests
-    putStrLn "ScopeEvaluator Tests:"
+    putStrLn "##############################\r\nScopeEvaluator Tests\r\n##############################"
     runTestTT scopeEvaluatorTests
