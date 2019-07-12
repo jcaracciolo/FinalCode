@@ -40,6 +40,7 @@ evalA (ABinary Multiply expr1 expr2)    = evalABin expr1 expr2 (*)
 evalA (ABinary Divide expr1 expr2)      = evalABin expr1 expr2 (/)
 evalA (VarA s)                          = getVar s >>= (expectNumeric >>> return)
 evalA (AFCall fcexpr)                   = evalFCall fcexpr >>= (expectNumeric >>> return)
+evalA (AOCall obj)                      = evalObjCall obj >>= (expectNumeric >>> return)
 
 
 -- -------------- BOOLEAN EVALUATOR -------------------------------
@@ -62,6 +63,7 @@ evalB (BCompare LessE aexpr1 aexpr2)        = evalABin aexpr1 aexpr2 (<=)
 evalB (BCompare Less aexpr1 aexpr2)         = evalABin aexpr1 aexpr2 (< )
 evalB (VarB s)                              = getVar s >>= (expectBool >>> return)
 evalB (BFCall fcexpr)                       = evalFCall fcexpr >>= (expectBool >>> return)
+evalB (BOCall obj)                          = evalObjCall obj >>= (expectBool >>> return)
 
 
 -- -------------- FUNCTION CALL EVALUATOR -------------------------------
@@ -227,7 +229,8 @@ eval (While bexpr stmt)                        = eval(If bexpr (Seq [stmt, (Whil
 eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
 eval (Print sexpr)                             = toStrG sexpr >>= liftIO . putStrLn >> return ()
-eval (a) = liftIO (print a) >> (return ())
+eval (Skip)                                    = return ()
+-- eval (a) = liftIO (print a) >> (return ())
 
 
 mainCompile = do

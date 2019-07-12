@@ -42,21 +42,37 @@ statement =  (ifStmt
 
 
 -- Arithmetic Expresion
-aTerm =  liftM NumericConst number
-     <|> try (liftM AFCall fCallExpression)
-     <|> liftM VarA identifier
+aComplexExpression :: Parser AExpr
+aComplexExpression = do
+                     expr <- aExpression
+                     case expr of VarA i -> fail "not Complex"
+                                  a -> return a
+
+aTerm =
+     try (fCallExpression >>= (AFCall >>> return))
+     <|> try (liftM AOCall objCallResult)
+     <|> try (identifier  >>= (VarA >>> return))
+     <|> try (number  >>= (NumericConst >>> return))
      <|> parens aExpression
 
 aExpression :: Parser AExpr
 aExpression = buildExpressionParser aOperators aTerm
 
 -- Boolean Expresion
-bTerm = try (reserved "true"  >> return (BConst True) )
-     <|> try (reserved "false" >> return (BConst False))
-     <|> try (liftM BFCall fCallExpression)
-     <|> try compareExpresion
-     <|> try (liftM VarB identifier)
-     <|> parens bTerm
+bComplexExpression :: Parser BExpr
+bComplexExpression = do
+                     expr <- bExpression
+                     case expr of VarB i -> fail "not Complex"
+                                  b -> return b
+
+bTerm =
+         try compareExpresion
+         <|> try (liftM BFCall fCallExpression)
+         <|> try (liftM BOCall objCallResult)
+         <|> try (liftM VarB identifier)
+         <|> try (reserved "true"  >> return (BConst True) )
+         <|> try (reserved "false" >> return (BConst False))
+         <|> parens bTerm
 
 relation =   (reservedOp ">" >> return Greater)
          <|> (reservedOp "<" >> return Less)
@@ -100,6 +116,7 @@ parameterGenericExpr = commaSep genericExpression
 genericExpression:: Parser GenericExpr
 genericExpression =
                     try (fCallExpression >>= (FunctionCallE >>> return))
+                    <|> try (objCallResult >>= (ObjCallE >>> return))
                     <|> try (identifier >>= (IdentifierE >>> return))
                     <|> (quotedString  >>= (StringE >>> return))
                     <|> (aExpression  >>= (AlgebraicE >>> return))
@@ -163,25 +180,23 @@ assignableParser = do
                     try assignObjD
                     <|> try assignObjC
                     <|> try assignFD
-                    <|> try assignStr
                     <|> try assignFC
-                    <|> try assignI
+                    <|> try assignStr
                     <|> try assignB
-                    <|> assignA
+                    <|> try assignA
+                    <|> assignI
 
 makeAssignable::Parser a -> (a -> AssignableE) -> Parser AssignableE
-makeAssignable parser mapper = do
-                               expr <- parser
-                               return $ mapper expr
+makeAssignable parser mapper = parser >>= (mapper >>> return)
 
-assignA  = makeAssignable aExpression     (ValueE . AlgebraicE)
-assignB  = makeAssignable bExpression     (ValueE . BooleanE)
-assignI  = makeAssignable identifier      (ValueE . IdentifierE)
-assignFC = makeAssignable fCallExpression (ValueE . FunctionCallE)
-assignStr = makeAssignable quotedString (ValueE . StringE)
-assignFD = makeAssignable fDeclExpression (FDeclare)
-assignObjD = makeAssignable objDec     (ODec)
-assignObjC = makeAssignable objCall     (parserToObj >>> (ValueE . ObjCallE))
+assignA     = makeAssignable aComplexExpression      (ValueE . AlgebraicE)
+assignB     = makeAssignable bComplexExpression      (ValueE . BooleanE)
+assignI     = makeAssignable identifier       (ValueE . IdentifierE)
+assignFC    = makeAssignable fCallExpression  (ValueE . FunctionCallE)
+assignStr   = makeAssignable quotedString     (ValueE . StringE)
+assignFD    = makeAssignable fDeclExpression  (FDeclare)
+assignObjD  = makeAssignable objDec           (ODec)
+assignObjC  = makeAssignable objCallResult    (ValueE . ObjCallE)
 
 
 ---- Object Call
@@ -189,9 +204,10 @@ assignObjC = makeAssignable objCall     (parserToObj >>> (ValueE . ObjCallE))
 data ObjectParser = ObjectParser String ObjectParser | ObjectFParser FCExpr ObjectParser | ObjectFEnd FCExpr | ObjectIEnd String
 
 objCallStmt::Parser Stmt
-objCallStmt = do
-                call <- objCall
-                return $ OCall (parserToObj call)
+objCallStmt = objCallResult >>= (OCall >>> return)
+
+objCallResult::Parser ObjCall
+objCallResult = objCall >>= (parserToObj >>> return)
 
 parserToObj::ObjectParser -> ObjCall
 parserToObj (ObjectParser  s (ObjectFEnd f))    = ObjFCall (ObjIBase s) f
