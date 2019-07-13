@@ -11,6 +11,7 @@ semi,
 whiteSpace,
 aOperators,
 bOperators,
+sOperators,
 commaSep,
 ) where
 
@@ -37,6 +38,8 @@ languageDef =
                                      , "else if"
                                      , "while"
                                      , "print"
+                                     , "readNum()"
+                                     , "readLn()"
                                      , "do"
                                      , "skip"
                                      , "true"
@@ -49,11 +52,17 @@ languageDef =
                                      , "function"
                                      , "return"
                                      ]
-           , Token.reservedOpNames = [ "+", "-", "*", "/", "="
+           , Token.reservedOpNames = [ "+", "-", "*", "/", "=", "$"
                                      , "<", ">", ">=", "<=", "==", "&&", "||", "!", ".", ":"
                                      ]
            , Token.caseSensitive = True
            }
+
+sOperators = [
+                [
+                 Infix  (reservedOp "$"   >> return StrConcat     ) AssocLeft
+                ]
+             ]
 
 aOperators =[
                 [ Prefix (reservedOp "-"   >> return Neg ) ],

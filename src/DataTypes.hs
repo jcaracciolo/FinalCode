@@ -6,6 +6,8 @@ BExpr(..),
 ABinaryOp(..),
 AExpr(..),
 
+SExpr(..),
+
 Stmt(..),
 GenericExpr(..),
 AssignableE(..),
@@ -51,13 +53,15 @@ data Stmt =    Seq [Stmt]
 
 data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Eq, Show)
 
-data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec deriving (Eq, Show)
+data AssignableE    = ValueE GenericExpr | FDeclare FDExpr | ODec ObjDec | ReadNum | ReadLn deriving (Eq, Show)
 data GenericExpr    = AlgebraicE AExpr
                       | BooleanE BExpr
-                      | StringE String
+                      | StringE SExpr
                       | IdentifierE String
                       | FunctionCallE FCExpr
                       | ObjCallE ObjCall deriving (Eq, Show)
+-- String Operations
+data SExpr = StrBase String | StrGBase GenericExpr | StrConcat SExpr SExpr deriving(Eq, Show)
 
 -- Binary Operations
 data BBinaryOp  = And | Or deriving (Eq, Show)

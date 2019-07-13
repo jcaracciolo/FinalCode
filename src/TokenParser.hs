@@ -27,6 +27,7 @@ maybeProgram = do
 -- Possible statements (If, While, Assign, Print)
 statement :: Parser Stmt
 statement =  (ifStmt
+           <|> printStmt
            <|> whileStmt
            <|> try callFunctionStmt
            <|> try changeStmt
@@ -34,7 +35,6 @@ statement =  (ifStmt
            <|> assignLet
            <|> assignVar
            <|> returnStmt
-           <|> printStmt
            <|> parens statement) >>= (\stmt -> do
                                           optional semi
                                           return stmt
@@ -46,6 +46,8 @@ aComplexExpression :: Parser AExpr
 aComplexExpression = do
                      expr <- aExpression
                      case expr of VarA i -> fail "not Complex"
+                                  AFCall _ ->  fail "not Complex"
+                                  AOCall _ -> fail "not Complex"
                                   a -> return a
 
 aTerm =
@@ -63,6 +65,8 @@ bComplexExpression :: Parser BExpr
 bComplexExpression = do
                      expr <- bExpression
                      case expr of VarB i -> fail "not Complex"
+                                  BFCall _ -> fail "not Complex"
+                                  BOCall _ -> fail "not Complex"
                                   b -> return b
 
 bTerm =
@@ -115,13 +119,12 @@ parameterGenericExpr = commaSep genericExpression
 
 genericExpression:: Parser GenericExpr
 genericExpression =
-                    try (fCallExpression >>= (FunctionCallE >>> return))
+                    try (aComplexExpression  >>= (AlgebraicE >>> return))
+                    <|> try (bComplexExpression >>= (BooleanE >>> return))
                     <|> try (objCallResult >>= (ObjCallE >>> return))
+                    <|> try (fCallExpression >>= (FunctionCallE >>> return))
+                    <|> try (sComplexExpression  >>= (StringE >>> return))
                     <|> try (identifier >>= (IdentifierE >>> return))
-                    <|> (quotedString  >>= (StringE >>> return))
-                    <|> (aExpression  >>= (AlgebraicE >>> return))
-                    <|> (bExpression >>= (BooleanE >>> return))
-
 -- If Statement
 ifStmt :: Parser Stmt
 ifStmt =
@@ -177,13 +180,15 @@ valueHolderParser = try (objCallNoEndF >>= return . parserToObj >>= (return . Ob
 
 assignableParser:: Parser AssignableE
 assignableParser = do
-                    try assignObjD
+                    readNumStmt
+                    <|> readLnStmt
+                    <|> try assignB
+                    <|> try assignA
+                    <|> try assignStr
+                    <|> try assignObjD
                     <|> try assignObjC
                     <|> try assignFD
                     <|> try assignFC
-                    <|> try assignStr
-                    <|> try assignB
-                    <|> try assignA
                     <|> assignI
 
 makeAssignable::Parser a -> (a -> AssignableE) -> Parser AssignableE
@@ -193,7 +198,7 @@ assignA     = makeAssignable aComplexExpression      (ValueE . AlgebraicE)
 assignB     = makeAssignable bComplexExpression      (ValueE . BooleanE)
 assignI     = makeAssignable identifier       (ValueE . IdentifierE)
 assignFC    = makeAssignable fCallExpression  (ValueE . FunctionCallE)
-assignStr   = makeAssignable quotedString     (ValueE . StringE)
+assignStr   = makeAssignable sComplexExpression (ValueE . StringE)
 assignFD    = makeAssignable fDeclExpression  (FDeclare)
 assignObjD  = makeAssignable objDec           (ODec)
 assignObjC  = makeAssignable objCallResult    (ValueE . ObjCallE)
@@ -292,10 +297,39 @@ printStmt = do
     content <- parens assignableParser
     return $ Print content
 
+readNumStmt :: Parser AssignableE
+readNumStmt = do
+    reserved "readNum()"
+    return $ ReadNum
+
+readLnStmt :: Parser AssignableE
+readLnStmt = do
+    reserved "readLn()"
+    return $ ReadLn
+
+sExpression :: Parser SExpr
+sExpression = buildExpressionParser sOperators sTerm
+
+sComplexExpression = do
+                     expr <- sExpression
+                     case expr of StrGBase _ -> fail "not Complex"
+                                  a -> return a
+
+sTerm = try (noStrGenExpr >>= (return . StrGBase))
+        <|> try (quotedString >>= (return . StrBase))
+        <|> parens sTerm
+
+noStrGenExpr:: Parser GenericExpr
+noStrGenExpr = try (aComplexExpression  >>= (AlgebraicE >>> return))
+               <|> try (bComplexExpression >>= (BooleanE >>> return))
+               <|> try (objCallResult >>= (ObjCallE >>> return))
+               <|> try (fCallExpression >>= (FunctionCallE >>> return))
+               <|> try (identifier >>= (IdentifierE >>> return))
 
 quotedString::Parser String
 quotedString = do
   string <- between (char '"') (char '"') (many quotedStringChar)
+  whiteSpace
   return string
   where
     quotedStringChar = escapedChar <|> normalChar

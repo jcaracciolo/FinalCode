@@ -2,7 +2,7 @@ module PrettyPrinter(
 mainPrettyPrint,
 prettyPrintFD,
 prettyPrintOD,
-toString
+toStringOut
 )where
 
 import DataTypes
@@ -183,6 +183,9 @@ prettyPrintOTVs (v:vs) = let (s, a) = v in
                              mAppend (toString a)
                              prettyPrintOTVs vs
                              return ()
+toStringOut::VariableType -> String
+toStringOut (StrT s) = s
+toStringOut a = toString a
 
 toString::VariableType -> String
 toString (NumericT d)                               = show d

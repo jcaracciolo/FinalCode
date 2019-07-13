@@ -56,4 +56,4 @@ loopInterpreter s     = do
                              IError e        -> liftIO (print e) >> liftIO (putStr ">>") >> liftIO (hFlush stdout) >> loopInterpreter ""
                              IExpectedMore s -> loopInterpreter s
                              ISuccess Undefined -> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""
-                             ISuccess a         -> liftIO (putStrLn (toString a)) >> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""
+                             ISuccess a         -> liftIO (putStrLn (toStringOut a)) >> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""

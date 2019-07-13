@@ -98,7 +98,7 @@ evalParamsInSequence ((s, g):otherParams) = do value <- evalG g
 -- -------------- GENERAL EXPRESSION EVALUATOR -------------------------------
 evalG::GenericExpr -> MState ProgramState VariableType
 evalG (AlgebraicE aexpr)                     = evalA aexpr >>= (NumericT >>> return)
-evalG (StringE str)                          = return (StrT str)
+evalG (StringE sExpr)                        = evalS sExpr >>= (return .StrT)
 evalG (BooleanE bexpr)                       = evalB bexpr >>= (BoolT >>> return)
 evalG (IdentifierE name)                     = getVar name >>= return
 evalG (FunctionCallE fcexpr)                 = evalFCall fcexpr >>= return
@@ -108,7 +108,19 @@ evalG (ObjCallE obj)                         = evalObjCall obj >>= return
 toStrG::AssignableE -> MState ProgramState String
 toStrG a = do
            var <- evalAssignable a
-           return (toString var)
+           return (toStringOut var)
+
+-- --------------- STRING EVALUATOR -----------------------------------
+evalS::SExpr -> MState ProgramState String
+evalS(StrBase s)  = return s
+evalS(StrGBase g) = do
+                    v <- evalG g
+                    return (toStringOut v)
+
+evalS (StrConcat sexpr1 sexpr2) = do
+                                  s1 <- evalS sexpr1
+                                  s2 <- evalS sexpr2
+                                  return $ s1 ++ s2
 
 -- -------------- ASSIGNMENT EVALUATOR -------------------------------
 
@@ -128,6 +140,10 @@ evalAssignF::ScopeAssigner -> String -> FCExpr -> MState ProgramState ()
 evalAssignF sa name fcexpr= evalFCall fcexpr >>= (evalAssignV sa name)
 
 evalAssignable::AssignableE -> MState ProgramState VariableType
+evalAssignable(ReadNum)     = do
+                              n  <- liftIO getLine
+                              return $ NumericT (read n :: Double)
+evalAssignable(ReadLn)     = liftIO getLine >>= (return . StrT)
 evalAssignable(ValueE    g) = evalG g
 evalAssignable(FDeclare fd) = return $ FunctionT fd
 evalAssignable(ODec (ObjDec vars)) = do
