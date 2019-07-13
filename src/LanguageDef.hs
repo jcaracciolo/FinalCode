@@ -70,7 +70,9 @@ aOperators =[
 bOperators = [
                 [ Prefix (reservedOp "!" >> return Not) ],
                 [
-                 Infix  (reservedOp "&&" >> return (BBinary And)) AssocLeft,
+                 Infix  (reservedOp "&&" >> return (BBinary And)) AssocLeft
+                ],
+                [
                  Infix  (reservedOp "||"  >> return (BBinary Or)) AssocLeft
                 ]
              ]

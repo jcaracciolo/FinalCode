@@ -40,8 +40,13 @@ newLine   = do
             tabString <- generateTabString
             modify(appendState $ "\n" ++ tabString)
 
-wrap::Precedence -> PrettyReturn -> String
-wrap p (s,i) = if i>p then "(" ++ s ++ ")" else s
+wrapPrecedenceToLeft::Precedence -> String -> PrettyReturn -> PrettyReturn -> String
+wrapPrecedenceToLeft p op (s1,i1) (s2,i2) = (if i1 > p then "(" ++ s1 ++ ")" else s1)
+                                            ++ op ++
+                                            (if i2 > p then "(" ++ s2 ++ ")" else s2)
+
+wrap::Precedence -> String -> PrettyReturn -> PrettyReturn
+wrap p op (s,i) = if i>=p then (op ++ "(" ++ s ++ ")", -2) else (op ++ s, p)
 
 dropP::PrettyReturn -> State PrinterState String
 dropP (s,i) = return s
@@ -52,11 +57,11 @@ prettyPrintABin::AExpr -> AExpr -> String -> Precedence -> State PrinterState Pr
 prettyPrintABin aexpr1 aexpr2 op p = do
                              i1 <- prettyPrintA aexpr1
                              i2 <- prettyPrintA aexpr2
-                             return $ ((wrap p i1) ++ op ++ (wrap p i2), p)
+                             return $ (wrapPrecedenceToLeft p op i1 i2, p)
 
 prettyPrintA::AExpr -> State PrinterState PrettyReturn
 prettyPrintA (NumericConst i)               = return $ (show i, -1)
-prettyPrintA (Neg aexpr)                    = prettyPrintA aexpr >>= \s -> return $ ("-" ++ (wrap 0 s), 0)
+prettyPrintA (Neg aexpr)                    = prettyPrintA aexpr >>= \s -> return $ wrap 0 "-" s
 prettyPrintA (ABinary Add expr1 expr2)      = prettyPrintABin expr1 expr2 " + " 2
 prettyPrintA (ABinary Subtract expr1 expr2) = prettyPrintABin expr1 expr2 " - " 2
 prettyPrintA (ABinary Multiply expr1 expr2) = prettyPrintABin expr1 expr2 " * " 1
@@ -71,13 +76,15 @@ prettyPrintBBin::BExpr -> BExpr -> String -> Precedence -> State PrinterState Pr
 prettyPrintBBin bexpr1 bexpr2 op p = do
                              i1 <- prettyPrintB bexpr1
                              i2 <- prettyPrintB bexpr2
-                             return $ ((wrap p i1) ++ op ++ (wrap p i2), p)
+                             return $ (wrapPrecedenceToLeft p op i1 i2, p)
 
 prettyPrintB:: BExpr -> State PrinterState PrettyReturn
-prettyPrintB (BConst b)                           = return $ (show b, -1)
-prettyPrintB (Not bexpr)                          = prettyPrintB bexpr >>= \s -> return $ ("not " ++ wrap 0 s, 0)
+-- prettyPrintB a = return $ (show a, 0)
+prettyPrintB (BConst False)                       = return $ ("false", -1)
+prettyPrintB (BConst True)                        = return $ ("true", -1)
+prettyPrintB (Not bexpr)                          = prettyPrintB bexpr >>= \s -> return $ wrap 0 "!" s
 prettyPrintB (BBinary And bexpr1 bexpr2)          = prettyPrintBBin bexpr1 bexpr2 " && " 4
-prettyPrintB (BBinary Or bexpr1 bexpr2)           = prettyPrintBBin bexpr1 bexpr2 " || " 4
+prettyPrintB (BBinary Or bexpr1 bexpr2)           = prettyPrintBBin bexpr1 bexpr2 " || " 5
 prettyPrintB (BCompare Greater aexpr1 aexpr2)     = prettyPrintABin aexpr1 aexpr2 " > " 3
 prettyPrintB (BCompare GreaterE aexpr1 aexpr2)    = prettyPrintABin aexpr1 aexpr2 " >= " 3
 prettyPrintB (BCompare Equal aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " == " 3
@@ -251,3 +258,4 @@ mainPrettyPrint = do
     case Parsec.parse (whiteSpace >> program) filename code of
         Left e  -> print e
         Right r -> putStrLn $ snd . snd $ runState (prettyPrint r) (0, "")
+--         Right r -> print r
