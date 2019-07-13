@@ -26,10 +26,9 @@ import Control.Monad.State
 
 --- Type Declarations
 type MState s = StateT s IO
-
 type ProgramState       = [ScopeVariables]
-type ProgramExecution a = (ProgramState, IO ())
 type ScopeVariables     = [(String, VariableType)]
+
 data VariableType       = NumericT Double | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Eq, Show)
 
 
@@ -43,11 +42,11 @@ data Stmt =    Seq [Stmt]
                | ChangeVal ValueHolder AssignableE
                | Return AssignableE
                | FCall FCExpr
+               | OCall ObjCall
                | If BExpr Stmt Stmt
                | While BExpr Stmt
                | Print AssignableE
                | Skip
-               | OCall ObjCall
                 deriving (Eq, Show)
 
 data ValueHolder    = IdentVH String | ObjectVH ObjCall deriving(Eq, Show)

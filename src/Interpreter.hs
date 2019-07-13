@@ -12,6 +12,7 @@ import Text.Parsec.Error
 import Text.ParserCombinators.Parsec
 import Data.List
 import qualified Control.Exception as Ex
+import PrettyPrinter
 
 
 
@@ -54,4 +55,5 @@ loopInterpreter s     = do
                         case result of
                              IError e        -> liftIO (print e) >> liftIO (putStr ">>") >> liftIO (hFlush stdout) >> loopInterpreter ""
                              IExpectedMore s -> loopInterpreter s
-                             ISuccess a      -> liftIO (print a) >> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""
+                             ISuccess Undefined -> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""
+                             ISuccess a         -> liftIO (putStrLn (toString a)) >> liftIO (putStr ">> ") >> liftIO (hFlush stdout) >> loopInterpreter ""

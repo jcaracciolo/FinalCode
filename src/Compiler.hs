@@ -230,7 +230,7 @@ eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
 eval (Print sexpr)                             = toStrG sexpr >>= liftIO . putStrLn >> return ()
 eval (Skip)                                    = return ()
--- eval (a) = liftIO (print a) >> (return ())
+eval (a) = liftIO (print a) >> (return ())
 
 
 mainCompile = do

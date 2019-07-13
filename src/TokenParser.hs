@@ -72,7 +72,7 @@ bTerm =
          <|> try (liftM VarB identifier)
          <|> try (reserved "true"  >> return (BConst True) )
          <|> try (reserved "false" >> return (BConst False))
-         <|> parens bTerm
+         <|> parens bExpression
 
 relation =   (reservedOp ">" >> return Greater)
          <|> (reservedOp "<" >> return Less)
