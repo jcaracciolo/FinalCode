@@ -37,8 +37,6 @@ tryInterpret append =
                                        result <- evalInterpreter r
                                        return (ISuccess result)
 
-                                       -- TODO there is an issue with var return = 5
-
 returnExc::Ex.SomeException -> MState ProgramState InterpreterResult
 returnExc e = return $ IException e
 

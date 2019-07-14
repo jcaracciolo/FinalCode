@@ -315,7 +315,7 @@ eval (While bexpr stmt)                        = eval(If bexpr (Seq [stmt, (Whil
 
 eval(FCall fcexpr)                             = evalFCall fcexpr >> return ()
 
-eval (Print sexpr)                             = toStrG sexpr >>= liftIO . putStrLn >> return ()
+eval (Print sexpr)                             = toStrG sexpr >>= liftIO . putStrLn
 eval (Skip)                                    = return ()
 eval (a) = liftIO (print a) >> (return ())
 
