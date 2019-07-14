@@ -29,9 +29,29 @@ library:
   source-dirs: src
 
 executables:
-  FinalCode-exe:
+  Compiler:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         appCompiler
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -XFlexibleContexts
+    dependencies:
+    - FinalCode
+  Interpreter:
+    main:                Main.hs
+    source-dirs:         appInterpreter
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -XFlexibleContexts
+    dependencies:
+    - FinalCode
+  PrettyPrinter:
+    main:                Main.hs
+    source-dirs:         appPrettyPrinter
     ghc-options:
     - -threaded
     - -rtsopts
