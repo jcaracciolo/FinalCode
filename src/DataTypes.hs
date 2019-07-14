@@ -34,7 +34,13 @@ type ScopeVariables     = [(String, VariableType)]
 data VariableType       = NumericT Double | StrT String | BoolT Bool | FunctionT FDExpr | ObjectT [(String, VariableType)] | Undefined deriving (Eq, Show)
 
 
-data ObjCall = ObjCall ObjCall String | ObjFCall ObjCall FCExpr | ObjFBase FCExpr | ObjIBase String deriving(Eq, Show)
+data ObjCall = ObjCall ObjCall String
+             | ObjFCall ObjCall FCExpr
+             | ObjBrCall ObjCall String GenericExpr
+             | ObjFBase FCExpr
+             | ObjBrBase String GenericExpr
+             | ObjIBase String deriving(Eq, Show)
+
 data ObjDec  = ObjDec [(String, AssignableE)] deriving(Eq, Show)
 
 ---- Statements
@@ -65,7 +71,7 @@ data SExpr = StrBase String | StrGBase GenericExpr | StrConcat SExpr SExpr deriv
 
 -- Binary Operations
 data BBinaryOp  = And | Or deriving (Eq, Show)
-data BCompareOp = Greater | GreaterE | Equal | LessE | Less deriving (Eq, Show)
+data BCompareOp = Greater | GreaterE | Equal | NEqual | LessE | Less deriving (Eq, Show)
 
 data BExpr = BConst Bool
           | Not BExpr

@@ -88,6 +88,7 @@ prettyPrintB (BBinary Or bexpr1 bexpr2)           = prettyPrintBBin bexpr1 bexpr
 prettyPrintB (BCompare Greater aexpr1 aexpr2)     = prettyPrintABin aexpr1 aexpr2 " > " 3
 prettyPrintB (BCompare GreaterE aexpr1 aexpr2)    = prettyPrintABin aexpr1 aexpr2 " >= " 3
 prettyPrintB (BCompare Equal aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " == " 3
+prettyPrintB (BCompare NEqual aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " != " 3
 prettyPrintB (BCompare LessE aexpr1 aexpr2)       = prettyPrintABin aexpr1 aexpr2 " <= " 3
 prettyPrintB (BCompare Less aexpr1 aexpr2)        = prettyPrintABin aexpr1 aexpr2 " < " 3
 prettyPrintB (VarB s)                             = return (s, -1)
@@ -99,6 +100,8 @@ prettyPrintAssignable::AssignableE -> State PrinterState ()
 prettyPrintAssignable (ValueE genericExpr)              = prettyPrintG genericExpr >>= mAppend
 prettyPrintAssignable (FDeclare fdexpr)                 = prettyPrintFD fdexpr
 prettyPrintAssignable (ODec odexpr)                     = prettyPrintOD odexpr
+prettyPrintAssignable (ReadNum)                         = mAppend "readNum()"
+prettyPrintAssignable (ReadLn)                          = mAppend "readLn()"
 
 prettyPrintAssign::String -> String -> AssignableE -> State PrinterState ()
 prettyPrintAssign keyword variable assign = do newLine
@@ -133,16 +136,32 @@ prettyPrintG (BooleanE bexpr)                       = prettyPrintB bexpr >>= dro
 prettyPrintG (IdentifierE name)                     = return name
 prettyPrintG (FunctionCallE fcexpr)                 = prettyPrintFC fcexpr
 prettyPrintG (ObjCallE oCall)                       = prettyPrintOC oCall
-prettyPrintG (StringE s)                            = return $ show s
+prettyPrintG (StringE sexpr)                        = prettyPrintS sexpr
+
+
+prettyPrintS::SExpr -> State PrinterState String
+prettyPrintS(StrBase s) = return $ show s
+prettyPrintS(StrGBase g)  = prettyPrintG g
+prettyPrintS(StrConcat sExpr1 sExpr2)  = do
+                                         s1 <- prettyPrintS sExpr1
+                                         s2 <- prettyPrintS sExpr2
+                                         return $ s1 ++ " $ " ++ s2
 
 -------- ObjectCall Pretty Print
 prettyPrintOC::ObjCall -> State PrinterState String
-prettyPrintOC (ObjCall o s)     = prettyPrintOC o >>= (\os -> return $ os ++ "." ++ s)
+prettyPrintOC (ObjCall o s)          = prettyPrintOC o >>= (\os -> return $ os ++ "." ++ s)
+prettyPrintOC (ObjBrCall o br g)     = do
+                                       os <- prettyPrintOC o
+                                       p <- prettyPrintG g
+                                       return $ os ++ "." ++ br ++ p ++ "[" ++ p ++ "]"
 prettyPrintOC (ObjFCall o f)    = do os <- prettyPrintOC o
                                      fs <- prettyPrintFC f
                                      return $ os ++ "." ++ fs
 prettyPrintOC (ObjFBase f)      = prettyPrintFC f
 prettyPrintOC (ObjIBase s)      = return s
+prettyPrintOC (ObjBrBase br g)      = do
+                                      p <- prettyPrintG g
+                                      return $ br ++ "[" ++ p ++ "]"
 
 
 -------- ObjectDeclare Pretty Print

@@ -13,6 +13,7 @@ aOperators,
 bOperators,
 sOperators,
 commaSep,
+brackets,
 ) where
 
 import DataTypes
@@ -53,7 +54,7 @@ languageDef =
                                      , "return"
                                      ]
            , Token.reservedOpNames = [ "+", "-", "*", "/", "=", "$"
-                                     , "<", ">", ">=", "<=", "==", "&&", "||", "!", ".", ":"
+                                     , "<", ">", ">=", "<=", "==", "!=", "&&", "||", "!", ".", ":"
                                      ]
            , Token.caseSensitive = True
            }
@@ -99,3 +100,4 @@ semi        = Token.semi        lexer -- parses a semicolon
 commaSep    = Token.commaSep    lexer -- parses a semicolon
 whiteSpace  = Token.whiteSpace  lexer -- parses whiteSpace
 identifier  = (try (parens identifier)) <|> identifier'
+brackets    = Token.brackets     lexer

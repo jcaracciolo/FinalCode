@@ -3,7 +3,8 @@ noSpacesIdentifier,
 noSpacesReserved,
 noSpacesReservedOp,
 whiteSpace1,
-noSpacesParens
+noSpacesParens,
+noSpacesBrackets,
 ) where
 
 import Text.ParserCombinators.Parsec
@@ -124,3 +125,6 @@ inCommentSingle
 
 noSpacesParens::Parser a -> Parser a
 noSpacesParens p = between (string "(") (string ")") p
+
+noSpacesBrackets::Parser a -> Parser a
+noSpacesBrackets p = between (string "[") (string "]") p

@@ -59,6 +59,7 @@ evalB (BBinary Or bexpr1 bexpr2)            = evalBBin bexpr1 bexpr2 (||)
 evalB (BCompare Greater aexpr1 aexpr2)      = evalABin aexpr1 aexpr2 (> )
 evalB (BCompare GreaterE aexpr1 aexpr2)     = evalABin aexpr1 aexpr2 (>=)
 evalB (BCompare Equal aexpr1 aexpr2)        = evalABin aexpr1 aexpr2 (==)
+evalB (BCompare NEqual aexpr1 aexpr2)        = evalABin aexpr1 aexpr2 (/=)
 evalB (BCompare LessE aexpr1 aexpr2)        = evalABin aexpr1 aexpr2 (<=)
 evalB (BCompare Less aexpr1 aexpr2)         = evalABin aexpr1 aexpr2 (< )
 evalB (VarB s)                              = getVar s >>= (expectBool >>> return)
@@ -158,18 +159,43 @@ evalChange (IdentVH name) assignable = evalAssign modifyVar name assignable
 evalChange (ObjectVH (ObjCall o name)) assignable = do
                                         obj <- evalObjCall o
                                         value <- evalAssignable assignable
+                                        mStrings <- getCallObjStrings o
                                         let vals = do {
                                               varName <- getOriginalObjectVariable o
-                                            ; strings <- getCallObjStrings o
-                                            ; return (varName, strings)
+                                            ; return (varName, mStrings)
                                            }
-                                        case vals of Nothing -> return()
-                                                     Just (varName, strings) ->
+                                        case vals of Just (varName, Just strings) ->
                                                         do
                                                         originalObj <- getVar varName
                                                         let newObject = alterObjWithCall (expectObject originalObj) strings name value
                                                                 in modify (modifyVar varName (ObjectT newObject))
                                                         return ()
+                                                     a -> return ()
+
+evalChange (ObjectVH (ObjBrBase varName g)) assignable = do
+                                        castedObj <- (getVar varName >>= return . expectObject)
+                                        value <- evalAssignable assignable
+                                        p <- evalG g
+                                        let newObject = modifyInObject castedObj (hashG p) value
+                                                in modify (modifyVar varName (ObjectT newObject))
+                                        return ()
+
+evalChange (ObjectVH (ObjBrCall o name g)) assignable = do
+                                        obj <- evalObjCall o
+                                        value <- evalAssignable assignable
+                                        p <- evalG g
+                                        mStrings <- getCallObjStrings o
+                                        let vals = do {
+                                              varName <- getOriginalObjectVariable o
+                                            ; return (varName, mStrings)
+                                           }
+                                        case vals of Just (varName, Just strings) ->
+                                                        do
+                                                        originalObj <- getVar varName
+                                                        let newObject = alterObjWithCall (expectObject originalObj) (strings ++ [name]) (hashG p) value
+                                                                in modify (modifyVar varName (ObjectT newObject))
+                                                        return ()
+                                                     a -> return ()
 
 
 -- -------------- OBJECT EVALUATOR -----------------------------
@@ -188,6 +214,19 @@ evalObjCall(ObjFCall o (FCExpr fName params))   = do
                                                           Nothing -> error ("The object has no attribute called " ++ fName)
                                                           Just f -> evalF (expectFn f) params
 
+evalObjCall(ObjBrCall o s g)   = do
+                                 castedObj <- (evalObjCall o >>= return . expectObject)
+                                 guard (length castedObj >= 0)
+                                 case (getVariableInObject s castedObj) of
+                                         Nothing -> error ("The object has no attribute called " ++ s)
+                                         Just newO -> do
+                                                   p <- evalG g
+                                                   let s2 = (hashG p) in
+                                                    case (getVariableInObject s2 (expectObject newO)) of
+                                                          Nothing -> error ("The object has no attribute called " ++ s2)
+                                                          Just v -> return v
+
+
 evalObjCall(ObjFBase fcexpr)         = do
                                        var <- evalFCall fcexpr
                                        guard (length (expectObject var) >= 0)
@@ -198,15 +237,47 @@ evalObjCall(ObjIBase identifier)     = do
                                        guard (length (expectObject var) >= 0)
                                        return var
 
-getCallObjStrings::ObjCall -> Maybe [String]
-getCallObjStrings (ObjCall o s) = getCallObjStrings o >>= (\r -> Just (r ++ [s]))
-getCallObjStrings (ObjIBase _) = Just []
-getCallObjStrings (ObjFCall _ _) = Nothing
-getCallObjStrings (ObjFBase _) = Nothing
+evalObjCall(ObjBrBase name g)     = do
+                                    castedObj <- (getVar name >>= return . expectObject)
+                                    guard (length castedObj >= 0)
+                                    p <- evalG g
+                                    let s = (hashG p) in
+                                     case (getVariableInObject s castedObj) of
+                                           Nothing -> error ("The object has no attribute called " ++ s)
+                                           Just v -> return v
+
+hashG::VariableType -> String
+hashG (NumericT d)                               = show d
+hashG (StrT s)                                   = s
+hashG (BoolT b)                                  = show b
+hashG (FunctionT fdexpr)                         = error ("FunctionT is not Hashable")
+hashG (ObjectT values)                           = error ("ObjecT is not Hashable")
+hashG (Undefined)                                = error ("undefined is not Hashable")
+
+
+getCallObjStrings::ObjCall -> MState ProgramState (Maybe [String])
+getCallObjStrings (ObjCall o s) = do
+                                  m <- getCallObjStrings o
+                                  return (m >>= (\r -> Just (r ++ [s])))
+
+getCallObjStrings (ObjBrCall o name g) = do
+                                         m <- getCallObjStrings o
+                                         p <- evalG g
+                                         return (m >>= (\r -> Just (r ++ [name, hashG p])))
+
+getCallObjStrings (ObjIBase _) = return $ Just []
+getCallObjStrings (ObjBrBase _ g) = do
+                                   m <- evalG g
+                                   return $ Just [hashG m]
+
+getCallObjStrings (ObjFCall _ _) = return $ Nothing
+getCallObjStrings (ObjFBase _) = return $ Nothing
 
 getOriginalObjectVariable::ObjCall -> Maybe String
 getOriginalObjectVariable (ObjCall o _) = getOriginalObjectVariable o
+getOriginalObjectVariable (ObjBrCall o _ _) = getOriginalObjectVariable o
 getOriginalObjectVariable (ObjIBase s) = Just s
+getOriginalObjectVariable (ObjBrBase name _) = Just name
 getOriginalObjectVariable (ObjFCall _ _) = Nothing
 getOriginalObjectVariable (ObjFBase _) = Nothing
 

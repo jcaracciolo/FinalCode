@@ -1,5 +1,5 @@
 module TokenParser(
-program,objCall
+program,objCall,genericExpression,objCallNoEndF
 ) where
 
 import Control.Monad
@@ -83,6 +83,7 @@ relation =   (reservedOp ">" >> return Greater)
          <|> (reservedOp "<=" >> return LessE)
          <|> (reservedOp ">=" >> return GreaterE)
          <|> (reservedOp "==" >> return Equal)
+         <|> (reservedOp "!=" >> return NEqual)
 
 compareExpresion =
   do a1 <- aExpression
@@ -206,7 +207,12 @@ assignObjC  = makeAssignable objCallResult    (ValueE . ObjCallE)
 
 ---- Object Call
 
-data ObjectParser = ObjectParser String ObjectParser | ObjectFParser FCExpr ObjectParser | ObjectFEnd FCExpr | ObjectIEnd String
+data ObjectParser = ObjectParser String ObjectParser
+                  | ObjectFParser FCExpr ObjectParser
+                  | ObjectBrParser String GenericExpr ObjectParser
+                  | ObjectFEnd FCExpr
+                  | ObjectIEnd String
+                  | ObjectBrEnd String GenericExpr deriving(Show)
 
 objCallStmt::Parser Stmt
 objCallStmt = objCallResult >>= (OCall >>> return)
@@ -217,31 +223,57 @@ objCallResult = objCall >>= (parserToObj >>> return)
 parserToObj::ObjectParser -> ObjCall
 parserToObj (ObjectParser  s (ObjectFEnd f))    = ObjFCall (ObjIBase s) f
 parserToObj (ObjectParser  s (ObjectIEnd i))    = ObjCall  (ObjIBase s) i
+parserToObj (ObjectParser  s (ObjectBrEnd br g)) = ObjBrCall  (ObjIBase s) br g
 parserToObj (ObjectParser  s o)                 = preappendObjI (parserToObj o) s
-parserToObj (ObjectFParser fc (ObjectFEnd f))    = ObjFCall (ObjFBase fc) f
+
+parserToObj (ObjectFParser fc (ObjectFEnd f))     = ObjFCall (ObjFBase fc) f
 parserToObj (ObjectFParser fc (ObjectIEnd i))     = ObjCall  (ObjFBase fc) i
-parserToObj (ObjectFParser fc o)                  = preappendObjF (parserToObj o) fc
+parserToObj (ObjectFParser fc (ObjectBrEnd br g))  = ObjBrCall  (ObjFBase fc) br g
+parserToObj (ObjectFParser fc o)                   = preappendObjF (parserToObj o) fc
+
+parserToObj (ObjectBrParser s p (ObjectFEnd f))      = ObjFCall (ObjBrBase s p) f
+parserToObj (ObjectBrParser s p (ObjectIEnd i))      = ObjCall  (ObjBrBase s p) i
+parserToObj (ObjectBrParser s p (ObjectBrEnd br g))  = ObjBrCall  (ObjBrBase s p) br g
+parserToObj (ObjectBrParser s p o)                  = preappendObjBr (parserToObj o) s p
+
+parserToObj (ObjectBrEnd br p)                        = ObjBrBase br p
+
 
 preappendObjI::ObjCall -> String -> ObjCall
 preappendObjI (ObjFBase fcall)   s  = ObjFCall (ObjIBase s) fcall
 preappendObjI (ObjIBase ident)   s  = ObjCall  (ObjIBase s) ident
+preappendObjI (ObjBrBase br p)   s  = ObjBrCall (ObjIBase s) br p
 preappendObjI (ObjCall o ident ) s  = ObjCall  (preappendObjI o s) ident
 preappendObjI (ObjFCall o fcall) s  = ObjFCall (preappendObjI o s) fcall
+preappendObjI (ObjBrCall o br p) s  = ObjBrCall (preappendObjI o s) br p
 
 preappendObjF::ObjCall -> FCExpr -> ObjCall
 preappendObjF (ObjFBase fcall)   f  = ObjFCall (ObjFBase f) fcall
 preappendObjF (ObjIBase ident)   f  = ObjCall  (ObjFBase f) ident
+preappendObjF (ObjBrBase br p)   f  = ObjBrCall  (ObjFBase f) br p
 preappendObjF (ObjCall o ident)  f  = ObjCall  (preappendObjF o f) ident
 preappendObjF (ObjFCall o fcall) f  = ObjFCall (preappendObjF o f) fcall
+preappendObjF (ObjBrCall o br p) f  = ObjBrCall (preappendObjF o f) br p
 
+preappendObjBr::ObjCall -> String -> GenericExpr -> ObjCall
+preappendObjBr (ObjFBase fcall)   br p  = ObjFCall (ObjBrBase br p) fcall
+preappendObjBr (ObjIBase ident)   br p  = ObjCall  (ObjBrBase br p) ident
+preappendObjBr (ObjBrBase s i)   br p  = ObjBrCall  (ObjBrBase br p) s i
+preappendObjBr (ObjCall o ident)  br p  = ObjCall  (preappendObjBr o br p) ident
+preappendObjBr (ObjFCall o fcall) br p  = ObjFCall (preappendObjBr o br p) fcall
+preappendObjBr (ObjBrCall o s i) br p  = ObjBrCall (preappendObjBr o br p) s i
 
 objCall::Parser ObjectParser
 objCall =  try (fToObjectCall objCallAndBase)
+            <|> try (brToObjectCall objCallAndBase)
+            <|> try (baseBrCall)
             <|> (iToObjectCall objCallAndBase)
 
 objCallAndBase = try (fToObjectCall objCallAndBase)
+                 <|> try (brToObjectCall objCallAndBase)
                  <|> try (iToObjectCall objCallAndBase)
                  <|> try (noSpacesFCall >>= (return . ObjectFEnd))
+                 <|> try (noSpacesBrCall)
                  <|> (noSpacesIdentifier >>= (return . ObjectIEnd))
 
 noSpacesFCall:: Parser FCExpr
@@ -260,6 +292,30 @@ fToObjectCall callAndBase =
               whiteSpace
               return $ ObjectFParser f o
 
+baseBrCall:: Parser ObjectParser
+baseBrCall =
+             do
+             name <- noSpacesIdentifier
+             parameter <- brackets genericExpression
+             return $ ObjectBrEnd name parameter
+
+noSpacesBrCall:: Parser ObjectParser
+noSpacesBrCall =
+              do
+              name <- noSpacesIdentifier
+              parameter <- noSpacesBrackets genericExpression
+              return $ ObjectBrEnd name parameter
+
+brToObjectCall::Parser ObjectParser -> Parser ObjectParser
+brToObjectCall callAndBase =
+              do
+              name <- noSpacesIdentifier
+              g <- noSpacesBrackets genericExpression
+              noSpacesReservedOp "."
+              o <- objCallAndBase
+              whiteSpace
+              return $ ObjectBrParser name g o
+
 iToObjectCall::Parser ObjectParser -> Parser ObjectParser
 iToObjectCall callAndBase =
               do
@@ -273,13 +329,15 @@ iToObjectCall callAndBase =
 
 objCallNoEndF::Parser ObjectParser
 objCallNoEndF =  try (fToObjectCall objCallAndBaseNoEndF)
+            <|> try (brToObjectCall objCallAndBaseNoEndF)
+            <|> try (baseBrCall)
             <|> (iToObjectCall objCallAndBaseNoEndF)
 
-
 objCallAndBaseNoEndF = try (fToObjectCall objCallAndBaseNoEndF)
+                 <|> try (brToObjectCall objCallAndBaseNoEndF)
                  <|> try (iToObjectCall objCallAndBaseNoEndF)
+                 <|> try (noSpacesBrCall)
                  <|> (noSpacesIdentifier >>= (return . ObjectIEnd))
-
 ---- Object Def
 objDec::Parser ObjDec
 objDec = do braces (commaSep objAssigns) >>= (return . ObjDec)
