@@ -17,5 +17,5 @@ fibonacci = function(n) {
 while(true) {
     print("Enter the fibonacci index")
     n = readNum()
-    console.log(fibonacci(n))
+    print(fibonacci(n))
 }

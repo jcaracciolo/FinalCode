@@ -4,6 +4,39 @@ This is the final project for ITBA's 2019 first semester Functional Programming 
 The goal of the project is to make a compiler using Haskell and Parsec library, as close as possible to the
 javascript language.
 
+# How to install:
+
+1. If you don't have "Stack", download and install from https://haskellstack.org/
+2. Open a terminal, and go to the project directory. For example "C:\Users\Mariano\IdeaProjects\FinalCode"
+3. Run the following command:
+   * stack install
+   
+# How to run:
+
+There are 3 applications to run:
+ * Compiler
+ * Interpreter
+ * Pretty Printer
+
+1. Open a terminal, and go to the project directory. For example "C:\Users\Mariano\IdeaProjects\FinalCode"
+2. Run one of the following commands:
+  * stack exec Interpreter
+  * stack exec Compiler PATH_TO_FILE
+  * stack exec PrettyPrinter PATH_TO_FILE
+
+Where PATH_TO_FILE is the path to the file you would like to use.
+
+For example, you can run: 
+* stack exec Compiler ./CoolExamples/fibonacci.js
+* stack exec PrettyPrinter ./CoolExamples/uglyFibonacci.js
+
+# How to run tests:
+
+1. Open a terminal, and go to the project directory. For example "C:\Users\Mariano\IdeaProjects\FinalCode"
+2. stack test
+
+
+
 # Types:
  * Supported
    * Integer
