@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1160240-f227-4015-8cf7-2cfb3b56ba4d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/appCompiler/Main.hs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/appInterpreter/Main.hs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/appPrettyPrinter/Main.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/IntegrationTest.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test/IntegrationTest.hs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.stack-work/" />
     <ignored path="$PROJECT_DIR$/dist/" />
@@ -20,39 +18,39 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="cabal" value="291" />
-          <entry key="hs" value="2229" />
+          <entry key="hs" value="2305" />
           <entry key="js" value="756" />
-          <entry key="txt" value="331" />
-          <entry key="yaml" value="241" />
+          <entry key="txt" value="404" />
+          <entry key="yaml" value="322" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Cabal" value="291" />
-          <entry key="Haskell" value="2229" />
+          <entry key="Haskell" value="2305" />
           <entry key="JavaScript" value="756" />
-          <entry key="PLAIN_TEXT" value="331" />
-          <entry key="YAML" value="241" />
+          <entry key="PLAIN_TEXT" value="404" />
+          <entry key="YAML" value="322" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="cabal" value="2" />
-          <entry key="hs" value="32" />
-          <entry key="js" value="28" />
+          <entry key="hs" value="33" />
+          <entry key="js" value="29" />
           <entry key="md" value="1" />
           <entry key="test-FinalCode-test" value="1" />
-          <entry key="yaml" value="4" />
+          <entry key="yaml" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Cabal" value="2" />
-          <entry key="Haskell" value="32" />
-          <entry key="JavaScript" value="28" />
+          <entry key="Haskell" value="33" />
+          <entry key="JavaScript" value="29" />
           <entry key="Markdown" value="1" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="YAML" value="4" />
+          <entry key="YAML" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
@@ -65,20 +63,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ScopeEvaluator.hs">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1325">
-              <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/TokenParser.hs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3639">
-              <caret line="338" selection-start-line="338" selection-end-line="338" />
+            <state relative-caret-position="272">
+              <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
             </state>
           </provider>
         </entry>
@@ -86,8 +75,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/PrettyPrinter.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
-              <caret line="256" column="15" selection-start-line="256" selection-end-line="256" selection-end-column="15" />
+            <state relative-caret-position="250">
+              <caret line="21" column="35" selection-start-line="21" selection-start-column="35" selection-end-line="21" selection-end-column="35" />
             </state>
           </provider>
         </entry>
@@ -95,8 +84,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Interpreter.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="395">
-              <caret line="44" column="15" selection-start-line="44" selection-end-line="44" selection-end-column="15" />
+            <state relative-caret-position="225">
+              <caret line="34" column="39" selection-start-line="34" selection-start-column="39" selection-end-line="34" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -104,8 +93,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Compiler.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-255">
-              <caret line="212" column="29" selection-start-line="212" selection-start-column="29" selection-end-line="212" selection-end-column="29" />
+            <state relative-caret-position="66">
+              <caret line="291" column="22" selection-start-line="291" selection-start-column="16" selection-end-line="291" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -113,8 +102,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FinalCode.cabal">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="239">
+            <state relative-caret-position="425">
               <caret line="60" column="24" selection-start-line="60" selection-start-column="24" selection-end-line="60" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/package.yaml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-5">
+              <caret line="27" column="8" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -122,8 +120,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/appCompiler/Main.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+            <state relative-caret-position="51">
+              <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/resources/testBoolAndArithmetic.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="16" selection-start-column="16" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -131,26 +138,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/appInterpreter/Main.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/appPrettyPrinter/Main.hs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
+            <state>
+              <caret column="17" selection-start-column="17" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/Main.hs">
+        <entry file="file://$PROJECT_DIR$/appPrettyPrinter/Main.hs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+            <state>
+              <caret column="17" selection-start-column="17" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -167,7 +165,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Setup</find>
       <find>addvar</find>
       <find>ScopeVariables</find>
       <find>modifyVarIfAvailable</find>
@@ -184,7 +181,6 @@
       <find>BConst</find>
       <find>runState</find>
       <find>evalB</find>
-      <find>MState</find>
       <find>runStateT</find>
       <find>noSpacesReserved</find>
       <find>noSpacesParens</find>
@@ -196,6 +192,8 @@
       <find>a</find>
       <find>CompilerTest</find>
       <find>const</find>
+      <find>toStrG</find>
+      <find>MState</find>
       <find>mainP</find>
     </findStrings>
   </component>
@@ -205,7 +203,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/Hython.hs" />
         <option value="$PROJECT_DIR$/src/Hython2.hs" />
         <option value="$PROJECT_DIR$/src/Setup.hs" />
         <option value="$PROJECT_DIR$/Setup.hs" />
@@ -227,7 +224,6 @@
         <option value="$PROJECT_DIR$/src/ScopeEvaluator.hs" />
         <option value="$PROJECT_DIR$/src/DataTypes.hs" />
         <option value="$PROJECT_DIR$/test/testLetVariableNotInScope.js" />
-        <option value="$PROJECT_DIR$/package.yaml" />
         <option value="$PROJECT_DIR$/stack.yaml" />
         <option value="$PROJECT_DIR$/test/test2.js" />
         <option value="$PROJECT_DIR$/test/testVarVariableInScope.js" />
@@ -251,11 +247,13 @@
         <option value="$PROJECT_DIR$/test/resources/testObjectFunction.js" />
         <option value="$PROJECT_DIR$/test/resources/testObjectPropertyInsideIf.js" />
         <option value="$PROJECT_DIR$/test/resources/testObjectInsideIfFails.js" />
-        <option value="$PROJECT_DIR$/test/IntegrationTest.hs" />
         <option value="$PROJECT_DIR$/app/MainCompile.hs" />
         <option value="$PROJECT_DIR$/FinalCode.cabal" />
-        <option value="$PROJECT_DIR$/appInterpreter/Main.hs" />
         <option value="$PROJECT_DIR$/appPrettyPrinter/Main.hs" />
+        <option value="$PROJECT_DIR$/appInterpreter/Main.hs" />
+        <option value="$PROJECT_DIR$/appCompiler/Main.hs" />
+        <option value="$PROJECT_DIR$/package.yaml" />
+        <option value="$PROJECT_DIR$/test/IntegrationTest.hs" />
       </list>
     </option>
   </component>
@@ -306,7 +304,23 @@
             <path>
               <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
               <item name="FinalCode" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="CoolExamples" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="FinalCode" type="2674bda8:ScopeViewTreeModel$GroupNode" />
               <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="FinalCode" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="test" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="FinalCode" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="FinalCode" type="2674bda8:ScopeViewTreeModel$GroupNode" />
+              <item name="test" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="resources" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
           </expand>
           <select />
@@ -339,7 +353,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1563075880163" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1563080343652" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -378,10 +392,11 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/CoolExamples/object.js</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/Compiler.hs</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/DataTypes.hs</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/Interpreter.hs</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/LanguageDef.hs</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/NoSpacesParsec.hs</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/PrettyPrinter.hs</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/TokenParser.hs</PATH>
         </FILE-GROUP>
@@ -391,10 +406,7 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="CREATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/CoolExamples/AreYouOldEnough.js</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/CoolExamples/fact.js</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/CoolExamples/fibonacci.js</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/CoolExamples/object.js</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/CoolExamples/binarySearch.js</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Deleted" />
@@ -526,7 +538,7 @@
       <workItem from="1562081851648" duration="18977000" />
       <workItem from="1562187483284" duration="64000" />
       <workItem from="1562187571118" duration="29392000" />
-      <workItem from="1562884649096" duration="13370000" />
+      <workItem from="1562884649096" duration="17384000" />
     </task>
     <task id="LOCAL-00001" summary="Added tests">
       <created>1562718520359</created>
@@ -577,14 +589,29 @@
       <option name="project" value="LOCAL" />
       <updated>1562896521482</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Added different executables for each program">
+      <created>1563075931113</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1563075931113</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Changed package.yaml">
+      <created>1563076170099</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1563076170099</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="41716000" />
+    <option name="totallyTimeSpent" value="45730000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17590618" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -636,7 +663,9 @@
     <MESSAGE value="Renamed test file&#10;Added resources directory&#10;Added while test" />
     <MESSAGE value="Added tests for functions, and objects" />
     <MESSAGE value="Added more tests with objects" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added more tests with objects" />
+    <MESSAGE value="Added different executables for each program" />
+    <MESSAGE value="Changed package.yaml" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed package.yaml" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/README.md">
@@ -658,13 +687,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
           <caret line="10" column="32" selection-start-line="10" selection-start-column="32" selection-end-line="10" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="335">
-          <caret line="50" column="24" selection-start-line="50" selection-start-column="24" selection-end-line="50" selection-end-column="24" />
         </state>
       </provider>
     </entry>
@@ -836,20 +858,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="17" column="58" selection-start-line="17" selection-start-column="58" selection-end-line="17" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/resources/testBoolAndArithmetic.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="16" selection-start-column="16" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/DataTypes.hs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="205">
@@ -881,21 +889,7 @@
     <entry file="file://$PROJECT_DIR$/src/TokenParser.hs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3639">
-          <caret line="338" selection-start-line="338" selection-end-line="338" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Compiler.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-255">
-          <caret line="212" column="29" selection-start-line="212" selection-start-column="29" selection-end-line="212" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/FinalCode.cabal">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="60" column="24" selection-start-line="60" selection-start-column="24" selection-end-line="60" selection-end-column="24" />
+          <caret line="396" selection-start-line="396" selection-end-line="396" />
         </state>
       </provider>
     </entry>
@@ -906,38 +900,73 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/appCompiler/Main.hs">
+    <entry file="file://$PROJECT_DIR$/appPrettyPrinter/Main.hs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Interpreter.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="44" column="15" selection-start-line="44" selection-end-line="44" selection-end-column="15" />
+        <state>
+          <caret column="17" selection-start-column="17" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/appInterpreter/Main.hs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
+        <state>
+          <caret column="17" selection-start-column="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appCompiler/Main.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FinalCode.cabal">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="60" column="24" selection-start-line="60" selection-start-column="24" selection-end-line="60" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5">
+          <caret line="27" column="8" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Interpreter.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="34" column="39" selection-start-line="34" selection-start-column="39" selection-end-line="34" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Compiler.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="66">
+          <caret line="291" column="22" selection-start-line="291" selection-start-column="16" selection-end-line="291" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/PrettyPrinter.hs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="256" column="15" selection-start-line="256" selection-end-line="256" selection-end-column="15" />
+        <state relative-caret-position="250">
+          <caret line="21" column="35" selection-start-line="21" selection-start-column="35" selection-end-line="21" selection-end-column="35" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/appPrettyPrinter/Main.hs">
+    <entry file="file://$PROJECT_DIR$/test/resources/testBoolAndArithmetic.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
+        <state>
+          <caret column="16" selection-start-column="16" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/IntegrationTest.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
         </state>
       </provider>
     </entry>

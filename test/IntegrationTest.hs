@@ -81,10 +81,8 @@ testWhile = TestCase (
 testBoolAndArithmetic = TestCase (
          do code <- readFile "test/resources/testBoolAndArithmetic.js"
             case parse (whiteSpace >> program) "" code of
-                 Left e  -> (assertFailure "Parse Failed")
-                 Right r -> do
-                            (_, finalState) <- runStateT (eval r) [[]]
-                            catch (assertEqual "ans equals 2" (NumericT 2) (evalVar finalState "ans")) assertError
+                 Left e  -> (assertBool "" True)
+                 Right r -> (assertFailure "Parsing should fail")
          )
 
 
