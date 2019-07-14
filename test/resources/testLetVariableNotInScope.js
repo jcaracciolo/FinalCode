@@ -1,4 +1,6 @@
 if (true) {
     let a = 1;
 }
-ans = a;
+if(a<0) {
+    ans = true
+}

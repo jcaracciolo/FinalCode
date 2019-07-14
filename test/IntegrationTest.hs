@@ -3,6 +3,7 @@ integrationTests
 ) where
 
 import Test.HUnit
+import Test.HUnit.Lang
 import Compiler
 import DataTypes
 import Control.Monad.State.Lazy
@@ -11,6 +12,7 @@ import LanguageDef
 import Text.ParserCombinators.Parsec
 import ScopeEvaluator
 import Control.Exception
+import Data.Typeable
 
 
 integrationTests = TestList [
@@ -40,7 +42,9 @@ integrationTests = TestList [
 -- UTILS
 
 assertError::SomeException -> Assertion
-assertError _ = assertBool "Exception was thrown" True
+assertError (SomeException e) = case (show (typeOf e)) of
+                                "HUnitFailure" -> assertFailure (show e)
+                                _ -> assertBool ("Exception was thrown") True
 
 -- END OF UTILS
 
@@ -100,9 +104,11 @@ testLetVariableNotInScope = TestCase (
          do code <- readFile "test/resources/testLetVariableNotInScope.js"
             case parse (whiteSpace >> program) "" code of
                  Left e  -> (assertFailure "Parse Failed")
-                 Right r -> do
-                            (_, finalState) <- runStateT (eval r) [[]]
-                            catch (assertEqual "ans equals 12" (NumericT 12) (evalVar finalState "ans")) assertError
+                 Right r -> catch (
+                             do
+                             (_, finalState) <- runStateT (eval r) [[]]
+                             assertFailure "Program did not exit"
+                            ) assertError
          )
 
 
