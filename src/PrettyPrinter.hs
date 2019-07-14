@@ -41,9 +41,9 @@ newLine   = do
             modify(appendState $ "\n" ++ tabString)
 
 wrapPrecedenceToLeft::Precedence -> String -> PrettyReturn -> PrettyReturn -> String
-wrapPrecedenceToLeft p op (s1,i1) (s2,i2) = (if i1 > p then "(" ++ s1 ++ ")" else s1)
+wrapPrecedenceToLeft p op (s1,p1) (s2,p2) = (if p1 > p then "(" ++ s1 ++ ")" else s1)
                                             ++ op ++
-                                            (if i2 > p then "(" ++ s2 ++ ")" else s2)
+                                            (if p2 >= p then "(" ++ s2 ++ ")" else s2)
 
 wrap::Precedence -> String -> PrettyReturn -> PrettyReturn
 wrap p op (s,i) = if i>=p then (op ++ "(" ++ s ++ ")", -2) else (op ++ s, p)
