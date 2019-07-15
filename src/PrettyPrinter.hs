@@ -16,8 +16,7 @@ import qualified Text.ParserCombinators.Parsec as Parsec
 
 type PrinterState = (TabCount, String)
 type TabCount = Int
-type Precedence = Int
-type PrettyReturn = (String, Precedence) -- String | Precedence
+
 
 addScope::PrinterState -> PrinterState
 addScope (t, s) = (t+1, s)
@@ -40,10 +39,21 @@ newLine   = do
             tabString <- generateTabString
             modify(appendState $ "\n" ++ tabString)
 
+
+type Precedence = Int
+type PrettyReturn = (String, Precedence)
 wrapPrecedenceToLeft::Precedence -> String -> PrettyReturn -> PrettyReturn -> String
 wrapPrecedenceToLeft p op (s1,p1) (s2,p2) = (if p1 > p then "(" ++ s1 ++ ")" else s1)
                                             ++ op ++
                                             (if p2 >= p then "(" ++ s2 ++ ")" else s2)
+
+prettyPrintABin::AExpr -> AExpr -> String -> Precedence -> State PrinterState PrettyReturn
+prettyPrintABin aexpr1 aexpr2 op p = do
+                             i1 <- prettyPrintA aexpr1
+                             i2 <- prettyPrintA aexpr2
+                             return $ (wrapPrecedenceToLeft p op i1 i2, p)
+
+
 
 wrap::Precedence -> String -> PrettyReturn -> PrettyReturn
 wrap p op (s,i) = if i>=p then (op ++ "(" ++ s ++ ")", -2) else (op ++ s, p)
@@ -53,11 +63,7 @@ dropP (s,i) = return s
 
 -------   Algebraic Pretty Print
 
-prettyPrintABin::AExpr -> AExpr -> String -> Precedence -> State PrinterState PrettyReturn
-prettyPrintABin aexpr1 aexpr2 op p = do
-                             i1 <- prettyPrintA aexpr1
-                             i2 <- prettyPrintA aexpr2
-                             return $ (wrapPrecedenceToLeft p op i1 i2, p)
+
 
 prettyPrintA::AExpr -> State PrinterState PrettyReturn
 prettyPrintA (NumericConst i)               = return $ (show i, -1)
@@ -181,6 +187,7 @@ prettyPrintODRec (v:vs) = let (s, a) = v in
                              mAppend s
                              mAppend ": "
                              prettyPrintAssignable a
+                             mAppend ","
                              prettyPrintODRec vs
                              return ()
 
@@ -199,12 +206,19 @@ prettyPrintOTVs (v:vs) = let (s, a) = v in
                           do newLine
                              mAppend s
                              mAppend ": "
-                             mAppend (toString a)
+                             (t, _) <- get
+                             mAppend (toStringWithState (t,"") a)
+                             mAppend ","
                              prettyPrintOTVs vs
                              return ()
 toStringOut::VariableType -> String
 toStringOut (StrT s) = s
 toStringOut a = toString a
+
+toStringWithState::PrinterState -> VariableType -> String
+toStringWithState s (FunctionT fdexpr)                = snd $ snd $ runState (prettyPrintFD fdexpr) s
+toStringWithState s (ObjectT values)                  = snd $ snd $ runState (prettyPrintOT values) s
+toStringWithState _ v = toString v
 
 toString::VariableType -> String
 toString (NumericT d)                               = show d

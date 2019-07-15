@@ -13,7 +13,7 @@ floor = function(x) {
     return f - 1
 }
 
-partition = function(arr, lo, hi) {
+partition = function(lo, hi) {
     let pivot = arr[hi];
     let i = lo - 1;
 
@@ -33,11 +33,11 @@ partition = function(arr, lo, hi) {
 }
 
 
-quicksort = function(arr, lo, hi) {
+quicksort = function(lo, hi) {
     if (lo < hi) {
-        let p = partition(arr, lo, hi)
-        quicksort(arr, lo, p - 1)
-        quicksort(arr, p + 1, hi)
+        let p = partition(lo, hi)
+        quicksort(lo, p - 1)
+        quicksort(p + 1, hi)
     }
 }
 
@@ -60,26 +60,24 @@ binarysearch = function(arr, size, n) {
     return -1
 }
 
-print("Binary Search: Enter the numbers")
+print("Binary Search: Enter the amount of numbers")
+let it = readNum()
 let counter = 0
-continue = true
 arr = {}
-while(continue) {
+while(it > 0) {
     let nextNum = readNum()
     arr[counter] = nextNum
     counter = counter + 1
-    print("Want to stop? (0: no)")
-    let stop = readNum()
-    if(stop != 0) {
-        continue = false
-    }
+    it = it - 1
 }
 
 print("Now enter the number you are looking for")
 // hack to easily remove preceding and trailing spaces
 let n = readNum()
 
-quicksort(arr, 0, counter - 1)
+print(arr)
+quicksort(0, counter - 1)
+print(arr)
 
 let position = binarysearch(arr, counter, n)
 
@@ -88,5 +86,3 @@ if (position >= 0) {
 } else {
     print("The number " $ n $ " is not at the array.")
 }
-
-print(arr)
